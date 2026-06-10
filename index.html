@@ -103,9 +103,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
 .rl-sound-btn.R-active{border-color:var(--angel);background:rgba(0,229,255,0.12);color:var(--angel);}
 .rl-sound-btn.L-active{border-color:var(--devil);background:rgba(255,42,109,0.12);color:var(--devil);}
 .rl-divider{width:100%;height:1px;background:rgba(255,255,255,0.06);margin:4px 0 8px;}
-.sens-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
-.sens-lbl{font-family:"Share Tech Mono",monospace;font-size:13px;color:#b0b8d8;width:60px;flex-shrink:0;}
-.sens-val{font-family:"Share Tech Mono",monospace;font-size:13px;color:var(--angel);width:32px;text-align:right;flex-shrink:0;}
+.sens-row{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.sens-lbl{font-family:"Share Tech Mono",monospace;font-size:11px;color:#b0b8d8;width:52px;flex-shrink:0;}
+.sens-val{font-family:"Share Tech Mono",monospace;font-size:11px;color:var(--angel);width:28px;text-align:right;flex-shrink:0;}
 /* 악보 레일: 4마디마다 줄바꿈 */
 .score-rail{display:flex;flex-direction:column;gap:8px;padding-bottom:4px;align-items:center;}
 .score-rail-row{display:flex;gap:clamp(2px,0.5vw,5px);align-items:flex-end;justify-content:center;flex-wrap:nowrap;width:100%;overflow:hidden;}
@@ -115,8 +115,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
 /* CENTER — 반응형으로 이동됨 */
 
 /* 현재 박자 아이콘 카드 */
-.beat-icon-card{background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;}
-.beat-icon-body{display:flex;align-items:center;gap:14px;width:100%;}
+.beat-icon-card{background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:visible;}
+.beat-icon-body{display:flex;align-items:flex-end;gap:14px;width:100%;overflow:visible;}
 /* 현재 마디 큰 숫자 */
 .beat-bar-num{display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-width:clamp(52px,7vw,72px);flex-shrink:0;
@@ -136,7 +136,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
 .beat-position{font-family:"Orbitron",monospace;font-size:13px;color:var(--angel);letter-spacing:2px;}
 
 /* 4개 음표 큰 아이콘 */
-.note-icons-row{display:flex;gap:14px;align-items:center;justify-content:center;}
+.note-icons-row{display:flex;gap:clamp(8px,2vw,18px);align-items:flex-end;justify-content:center;min-height:80px;overflow:visible;}
 .note-icon{display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.1s;}
 .note-icon-circle{width:clamp(44px,5.5vw,62px);height:clamp(44px,5.5vw,62px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",monospace;font-weight:900;font-size:clamp(16px,2vw,22px);border:2px solid;transition:all 0.1s;position:relative;}
 .note-icon-circle.R{border-color:rgba(0,229,255,0.35);background:rgba(0,229,255,0.05);color:var(--angel);}
@@ -164,7 +164,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
 .hit-flash.show{opacity:1;}
 
 /* 악보 레일 카드 */
-.score-rail-card{background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:clamp(10px,1.5vw,18px);overflow:hidden;}
+.score-rail-card{background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:clamp(10px,1.5vw,18px);overflow:visible;}
 .pattern-selector{display:flex;gap:5px;flex-wrap:wrap;}
 
 /* 패턴 조합 선택 */
@@ -1450,7 +1450,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 /* ── 태블릿 가로 / 데스크탑 (1024px~) ── */
 @media (min-width: 1024px) {
   main {
-    grid-template-columns: minmax(240px,22%) 1fr minmax(220px,20%);
+    grid-template-columns: minmax(220px,20%) 1fr minmax(200px,19%);
     grid-template-rows: auto;
   }
   .panel-left  { grid-column: 1; grid-row: 1; }
@@ -1461,7 +1461,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 /* ── 아이패드 Pro 가로 (1180px~) ── */
 @media (min-width: 1180px) {
   main {
-    grid-template-columns: minmax(260px,20%) 1fr minmax(240px,19%);
+    grid-template-columns: minmax(240px,19%) 1fr minmax(220px,18%);
   }
   .bpm-number { font-size: clamp(52px,4.5vw,68px); }
 }
@@ -1495,9 +1495,8 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     scrollbar-width: thin;
   }
   .panel-center {
-    overflow-y: auto;
+    overflow-y: visible;   /* 중앙 패널 전체 스크롤 제거 */
     max-height: 100%;
-    scrollbar-width: thin;
   }
   .panel-right {
     overflow-y: auto;
@@ -1508,6 +1507,13 @@ input[type=range].vertical.triplet::-moz-range-thumb {
   .ai-coach-card { flex-shrink: 0; }
   /* 악보 레일 가로 스크롤 허용 */
   .score-rail-row { overflow-x: auto; }
+  /* 루디먼트 악보 카드 내부만 스크롤 */
+  .score-rail-card {
+    overflow-y: auto;
+    max-height: calc(100dvh - 420px);
+    scrollbar-width: thin;
+  }
+}
 }
 
 /* ── 모바일 (767px 이하) ── */
@@ -1536,6 +1542,178 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 .panel-center::-webkit-scrollbar-thumb,
 .panel-right::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 2px; }
 
+
+/* ── 뷰 전환 버튼 ── */
+.beat-view-btn{padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-muted);font-family:"Share Tech Mono",monospace;font-size:10px;cursor:pointer;transition:all 0.15s;}
+.beat-view-btn.active{border-color:rgba(0,229,255,0.4);background:rgba(0,229,255,0.08);color:var(--angel);}
+.beat-view-toggle{display:flex;gap:4px;}
+/* 기본 아이콘: 원형 */
+.note-icon-circle{ border-radius:50%; }
+/* 악보형 뷰에서만 사각형으로 변경 */
+.note-icons-row.score-view .note-icon-circle{ border-radius:6px !important; }
+/* 라운드형: 명시적 원형 보장 */
+.note-icons-row.round-view .note-icon-circle{ border-radius:50% !important; }
+/* ── 타이밍 레인 ── */
+.timing-lane-row{display:flex;align-items:center;gap:8px;}
+.timing-lane-hand{font-family:"Orbitron",monospace;font-size:12px;font-weight:900;width:18px;text-align:center;flex-shrink:0;}
+.timing-lane-hand.R{color:var(--angel);}
+.timing-lane-hand.L{color:var(--devil);}
+.timing-late-early{display:flex;justify-content:space-between;font-family:"Share Tech Mono",monospace;font-size:9px;color:var(--text-muted);margin-top:4px;padding-left:26px;}
+.timing-lane-title{font-family:"Orbitron",monospace;font-size:11px;letter-spacing:2px;color:#d0d8ff;font-weight:700;display:flex;align-items:center;gap:8px;}
+.timing-lane-card{background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:12px 14px;}
+.timing-lane-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.timing-lane-wrap{display:flex;flex-direction:column;gap:6px;}
+.timing-lane-track{position:relative;flex:1;height:36px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);min-width:0;}
+.timing-lane-zone{position:absolute;top:0;bottom:0;pointer-events:none;}
+.timing-lane-zone.good{left:25%;width:50%;background:rgba(255,224,0,0.06);}
+.timing-lane-zone:not(.good){left:35%;width:30%;background:rgba(57,255,20,0.08);}
+.timing-lane-center{position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(255,255,255,0.2);pointer-events:none;}
+.tl-playhead{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.4);pointer-events:none;}
+.tl-hit{position:absolute;top:4px;bottom:4px;width:6px;border-radius:3px;transform:translateX(-50%);opacity:1;transition:opacity 2s ease;pointer-events:none;z-index:2;}
+.tl-hit.perfect{background:var(--hit-ok);box-shadow:0 0 8px var(--hit-ok);}
+.tl-hit.good{background:var(--hit-good);box-shadow:0 0 6px var(--hit-good);}
+.tl-hit.miss{background:var(--hit-miss);opacity:0.5;}
+
+/* ══ 악보형 뷰 ══ */
+.note-icons-row.score-view {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(8px,2vw,20px);
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+.note-icon-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: default;
+  overflow: visible;
+}
+/* 음표 SVG 래퍼 */
+.note-svg-wrap {
+  position: relative;
+  width: clamp(28px,4vw,44px);
+  height: clamp(44px,6.5vw,66px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+  flex-shrink: 0;
+}
+.note-svg-wrap svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* 음표 색상 */
+.note-svg-wrap.R .note-head { fill: var(--angel); }
+.note-svg-wrap.L .note-head { fill: var(--devil); }
+.note-svg-wrap.R .note-stem { stroke: var(--angel); }
+.note-svg-wrap.L .note-stem { stroke: var(--devil); }
+.note-svg-wrap.R .note-flag { stroke: var(--angel); fill:none; }
+.note-svg-wrap.L .note-flag { stroke: var(--devil); fill:none; }
+/* 강박(accent) 표시 */
+.note-accent-mark {
+  position: absolute;
+  top: -2px;
+  font-size: clamp(10px,1.5vw,14px);
+  font-weight: 900;
+  opacity: 0;
+}
+.note-svg-wrap.R .note-accent-mark { color: var(--angel); }
+.note-svg-wrap.L .note-accent-mark { color: var(--devil); }
+.note-svg-wrap.accent .note-accent-mark { opacity: 1; }
+/* 현재 박자 하이라이트 */
+.note-icon-score.current .note-svg-wrap.R .note-head { fill: #00ffff; filter: drop-shadow(0 0 6px #00ffff); }
+.note-icon-score.current .note-svg-wrap.L .note-head { fill: #ff44aa; filter: drop-shadow(0 0 6px #ff44aa); }
+.note-icon-score.current .note-svg-wrap { transform: scale(1.15); }
+/* 판정 색상 변경 */
+.note-icon-score.hit-perfect .note-svg-wrap .note-head { fill: var(--hit-ok) !important; filter: drop-shadow(0 0 8px var(--hit-ok)); }
+.note-icon-score.hit-good    .note-svg-wrap .note-head { fill: var(--hit-good) !important; filter: drop-shadow(0 0 6px var(--hit-good)); }
+.note-icon-score.hit-miss    .note-svg-wrap { opacity: 0.3; }
+/* R/L 라벨 */
+.note-hand-lbl {
+  font-family: "Orbitron", monospace;
+  font-weight: 900;
+  font-size: clamp(11px,1.8vw,16px);
+  line-height: 1;
+}
+.note-hand-lbl.R { color: var(--angel); }
+.note-hand-lbl.L { color: var(--devil); }
+/* 서브인덱스 */
+.note-sub-lbl {
+  font-family: "Share Tech Mono", monospace;
+  font-size: clamp(8px,1.2vw,11px);
+  color: var(--text-muted);
+}
+
+/* ── 세로형 타이밍 레인 ── */
+.timing-lane-track-v {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+/* 가로 구역선 (세로 레인에서는 가로로) */
+.timing-lane-zone-v {
+  position: absolute; left: 0; right: 0; pointer-events: none;
+}
+.timing-lane-zone-v.good-v {
+  top: 25%; height: 50%;
+  background: rgba(255,224,0,0.06);
+}
+.timing-lane-zone-v.perf-v {
+  top: 35%; height: 30%;
+  background: rgba(57,255,20,0.08);
+}
+.timing-lane-center-v {
+  position: absolute; left: 0; right: 0;
+  top: 50%; height: 1px;
+  background: rgba(255,255,255,0.2);
+  pointer-events: none;
+}
+/* 세로형 히트 막대 (가로) */
+.tl-hit-v {
+  position: absolute;
+  left: 3px; right: 3px;
+  height: 5px;
+  border-radius: 3px;
+  transform: translateY(-50%);
+  opacity: 1;
+  transition: opacity 2s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.tl-hit-v.perfect { background: var(--hit-ok);   box-shadow: 0 0 8px var(--hit-ok); }
+.tl-hit-v.good    { background: var(--hit-good);  box-shadow: 0 0 6px var(--hit-good); }
+.tl-hit-v.miss    { background: var(--hit-miss);  opacity: 0.4; }
+
+/* ── SWAP 버튼 */
+.btn-swap {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
+  border: 1px solid rgba(255,224,0,0.35);
+  background: rgba(255,224,0,0.06);
+  color: var(--hit-good);
+  font-family: "Orbitron", monospace; font-size: 11px;
+  font-weight: 700; letter-spacing: 1px;
+  cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-swap:hover {
+  background: rgba(255,224,0,0.14);
+  box-shadow: 0 0 12px rgba(255,224,0,0.3);
+}
+.btn-swap.swapped {
+  border-color: rgba(255,224,0,0.6);
+  background: rgba(255,224,0,0.15);
+  box-shadow: 0 0 14px rgba(255,224,0,0.35);
+  color: #ffe000;
+}
 </style>
 </head>
 <body>
@@ -1563,7 +1741,6 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 <!-- LEFT -->
 <aside class="panel-left">
   <div class="card">
-    <div class="card-title">메트로놈</div>
     <div class="bpm-display">
       <div class="bpm-number" id="bpmDisplay">80</div>
       <div class="bpm-label">BPM</div>
@@ -1576,8 +1753,6 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     <div style="display:flex;gap:4px;justify-content:center;margin-bottom:8px;flex-wrap:wrap;">
       <button class="btn-bpm" onclick="changeBpm(-50)" style="font-size:10px;width:auto;padding:0 8px;height:26px;letter-spacing:0;">−50</button>
       <button class="btn-bpm" onclick="changeBpm(-10)" style="font-size:10px;width:auto;padding:0 8px;height:26px;letter-spacing:0;">−10</button>
-      <button class="btn-bpm" onclick="changeBpm(-1)"  style="font-size:10px;width:auto;padding:0 8px;height:26px;letter-spacing:0;">−1</button>
-      <button class="btn-bpm" onclick="changeBpm(+1)"  style="font-size:10px;width:auto;padding:0 8px;height:26px;letter-spacing:0;">+1</button>
       <button class="btn-bpm" onclick="changeBpm(+10)" style="font-size:10px;width:auto;padding:0 8px;height:26px;letter-spacing:0;">+10</button>
       <button class="btn-bpm" onclick="changeBpm(+50)" style="font-size:10px;width:auto;padding:0 8px;height:26px;letter-spacing:0;">+50</button>
     </div>
@@ -1590,7 +1765,6 @@ input[type=range].vertical.triplet::-moz-range-thumb {
           <!-- 기둥 -->
           <line x1="20" y1="27" x2="20" y2="6" stroke-width="2.2" stroke-linecap="round" class="note-stroke" fill="none"/>
         </svg>
-        <span class="nd-label">4분음표</span>
       </button>
       <!-- 8분음표 -->
       <button class="note-div-btn" onclick="setNoteDiv(2,this)" title="8분음표 — 한 박자에 2타">
@@ -1600,7 +1774,6 @@ input[type=range].vertical.triplet::-moz-range-thumb {
           <!-- 꼬리 -->
           <path d="M19 6 Q28 12 22 20" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="note-stroke" fill="none"/>
         </svg>
-        <span class="nd-label">8분음표</span>
       </button>
       <!-- 16분음표 -->
       <button class="note-div-btn" onclick="setNoteDiv(4,this)" title="16분음표 — 한 박자에 4타">
@@ -1612,7 +1785,6 @@ input[type=range].vertical.triplet::-moz-range-thumb {
           <!-- 꼬리 2 -->
           <path d="M19 11 Q28 17 22 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="note-stroke" fill="none"/>
         </svg>
-        <span class="nd-label">16분음표</span>
       </button>
     </div>
     <button class="btn-start stopped" id="startBtn" onclick="toggleMetronome()">▶ START</button>
@@ -1620,19 +1792,14 @@ input[type=range].vertical.triplet::-moz-range-thumb {
   </div>
 
   <div class="card">
-    <div class="card-title">클릭 사운드</div>
     <div class="rl-sound-section">
       <!-- R (오른손) 사운드 -->
       <div class="rl-sound-row">
         <div class="rl-hand-badge R">R</div>
         <div class="rl-sound-btns" id="rSoundBtns">
-          <button class="rl-sound-btn R-active" onclick="setHandSound('R','beep',this)">디지털빕</button>
-          <button class="rl-sound-btn" onclick="setHandSound('R','hihat',this)">🎩하이햇</button>
-          <button class="rl-sound-btn" onclick="setHandSound('R','wood',this)">우드블록</button>
-          <button class="rl-sound-btn" onclick="setHandSound('R','rim',this)">림샷</button>
-          <button class="rl-sound-btn" onclick="setHandSound('R','cow',this)">카우벨</button>
-          <button class="rl-sound-btn" onclick="setHandSound('R','voice',this)">🗣️목소리</button>
-          <button class="rl-sound-btn" onclick="setHandSound('R','mute',this)">🔇무음</button>
+          <button class="rl-sound-btn R-active" onclick="setHandSound('R','beep',this)">BEEP</button>
+          <button class="rl-sound-btn" onclick="setHandSound('R','hihat',this)">Hihat</button>
+          <button class="rl-sound-btn" onclick="setHandSound('R','mute',this)">🔇</button>
         </div>
       </div>
       <div class="rl-divider"></div>
@@ -1640,36 +1807,63 @@ input[type=range].vertical.triplet::-moz-range-thumb {
       <div class="rl-sound-row">
         <div class="rl-hand-badge L">L</div>
         <div class="rl-sound-btns" id="lSoundBtns">
-          <button class="rl-sound-btn" onclick="setHandSound('L','beep',this)">디지털빕</button>
-          <button class="rl-sound-btn" onclick="setHandSound('L','hihat',this)">🎩하이햇</button>
-          <button class="rl-sound-btn" onclick="setHandSound('L','wood',this)">우드블록</button>
-          <button class="rl-sound-btn L-active" onclick="setHandSound('L','rim',this)">림샷</button>
-          <button class="rl-sound-btn" onclick="setHandSound('L','cow',this)">카우벨</button>
-          <button class="rl-sound-btn" onclick="setHandSound('L','voice',this)">🗣️목소리</button>
-          <button class="rl-sound-btn" onclick="setHandSound('L','mute',this)">🔇무음</button>
+          <button class="rl-sound-btn L-active" onclick="setHandSound('L','beep',this)">BEEP</button>
+          <button class="rl-sound-btn" onclick="setHandSound('L','hihat',this)">Hihat</button>
+          <button class="rl-sound-btn" onclick="setHandSound('L','mute',this)">🔇</button>
         </div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">볼륨 / 감도</div>
     <div class="sens-row">
       <span class="sens-lbl">메트로놈</span>
-      <input type="range" id="metroVol" min="0" max="100" value="80" oninput="metroVolume=this.value/100;document.getElementById('metroVolVal').textContent=this.value;updateRangeStyle(this)">
+      <input type="range" id="metroVol" min="0" max="100" value="80" style="flex:1;min-width:0;" oninput="metroVolume=this.value/100;document.getElementById('metroVolVal').textContent=this.value;updateRangeStyle(this)">
       <span class="sens-val" id="metroVolVal">80</span>
     </div>
     <div class="sens-row">
       <span class="sens-lbl">감도</span>
-      <input type="range" id="sensSlider" min="1" max="20" value="8" oninput="sensitivity=parseInt(this.value);document.getElementById('sensVal').textContent=this.value;updateRangeStyle(this)">
+      <input type="range" id="sensSlider" min="1" max="20" value="8" style="flex:1;min-width:0;" oninput="sensitivity=parseInt(this.value);document.getElementById('sensVal').textContent=this.value;updateRangeStyle(this)">
       <span class="sens-val" id="sensVal">8</span>
     </div>
     <div class="sens-row">
       <span class="sens-lbl">임계값</span>
-      <input type="range" id="threshSlider" min="1" max="50" value="15" oninput="calibratedThreshold=parseInt(this.value);document.getElementById('threshVal').textContent=this.value;updateRangeStyle(this)">
+      <input type="range" id="threshSlider" min="1" max="50" value="15" style="flex:1;min-width:0;" oninput="calibratedThreshold=parseInt(this.value);document.getElementById('threshVal').textContent=this.value;updateRangeStyle(this)">
       <span class="sens-val" id="threshVal">15</span>
     </div>
   </div>
+
+  <!-- 세로형 타이밍 레인 -->
+  <div class="card" id="timingLaneCard">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:#a0a8c8;">TIMING</span>
+      <span id="tlLastMs" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-muted);">—</span>
+    </div>
+    <div style="display:flex;gap:6px;height:120px;">
+      <!-- R 세로 레인 -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;">
+        <span class="timing-lane-hand R" style="font-size:10px;">R</span>
+        <div class="timing-lane-track-v" id="tlTrackR">
+          <div class="timing-lane-zone-v good-v"></div>
+          <div class="timing-lane-zone-v perf-v"></div>
+          <div class="timing-lane-center-v"></div>
+        </div>
+      </div>
+      <!-- L 세로 레인 -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;">
+        <span class="timing-lane-hand L" style="font-size:10px;">L</span>
+        <div class="timing-lane-track-v" id="tlTrackL">
+          <div class="timing-lane-zone-v good-v"></div>
+          <div class="timing-lane-zone-v perf-v"></div>
+          <div class="timing-lane-center-v"></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-muted);margin-top:3px;padding:0 4px;">
+      <span>EARLY</span><span>LATE</span>
+    </div>
+  </div>
+
 </aside>
 
 <!-- CENTER -->
@@ -1679,8 +1873,14 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     <div class="hit-flash" id="hitFlash"></div>
     <!-- 헤더 -->
     <div class="current-beat-header">
-      <div class="card-title" style="margin:0">현재 타격</div>
-      <div class="beat-position" id="beatPosition">— / —</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="beat-view-toggle">
+          <button class="beat-view-btn active" id="viewBtnRound" onclick="setBeatView('round',this)" title="라운드형">⬤</button>
+          <button class="beat-view-btn" id="viewBtnScore" onclick="setBeatView('score',this)" title="악보형">♩</button>
+        </div>
+        <div class="beat-position" id="beatPosition">— / —</div>
+      </div>
+      <button class="btn-swap" id="swapBtn" onclick="toggleSwap(this)">⇄ SWAP</button>
     </div>
     <!-- 본문: 마디 번호(왼쪽 크게) + 노트 아이콘(오른쪽) -->
     <div class="beat-icon-body">
@@ -1692,7 +1892,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
       </div>
       <!-- 오른쪽: 노트 아이콘 + 판정 -->
       <div class="beat-icons-right">
-        <div class="note-icons-row" id="noteIconsRow"></div>
+        <div class="note-icons-row round-view" id="noteIconsRow"></div>
         <div class="judgment-area" style="height:32px;">
           <div class="judgment-text" id="judgmentText"></div>
         </div>
@@ -1700,22 +1900,8 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     </div>
   </div>
 
-  <div class="timing-bar-card">
-    <div class="card-title" style="margin-bottom:10px">타이밍 정밀도</div>
-    <div class="timing-bar-wrap">
-      <div class="timing-zone good-zone"></div>
-      <div class="timing-zone perfect-zone"></div>
-      <div class="timing-center"></div>
-      <div class="timing-marker" id="timingMarker"></div>
-    </div>
-    <div class="timing-labels">
-      <span>EARLY −100ms</span><span>PERFECT ±20ms</span><span>LATE +100ms</span>
-    </div>
-    <div class="timing-ms" id="timingMs">메트로놈을 시작하고 패드를 치세요</div>
-  </div>
-
+  <!-- R/L 분리 타이밍 레인 -->
   <div class="score-rail-card">
-    <div class="card-title" style="margin-bottom:8px">루디먼트 악보</div>
     <!-- 파라디들 / 루디먼트 탭 -->
     <div class="score-mode-tabs">
       <button class="score-mode-tab active" id="tabParadiddle" onclick="switchScoreMode('paradiddle',this)">🥁 파라디들</button>
@@ -1766,81 +1952,63 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 
       <!-- 카테고리별 루디먼트 버튼 -->
       <div class="rudiment-category">
-        <div class="rudiment-cat-title">ROLLS</div>
+        <div class="rudiment-cat-title">I. ROLLS</div>
         <div class="rudiment-grid">
           <button class="rud-btn selected" onclick="selectRudiment(1,this)"><span class="rud-num">1</span>싱글 스트로크 롤</button>
           <button class="rud-btn" onclick="selectRudiment(2,this)"><span class="rud-num">2</span>싱글 스트로크 4</button>
           <button class="rud-btn" onclick="selectRudiment(3,this)"><span class="rud-num">3</span>싱글 스트로크 7</button>
-          <button class="rud-btn" onclick="selectRudiment(4,this)"><span class="rud-num">4</span>더블 스트로크 오픈 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(5,this)"><span class="rud-num">5</span>파이브 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(6,this)"><span class="rud-num">6</span>식스 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(7,this)"><span class="rud-num">7</span>세븐 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(8,this)"><span class="rud-num">8</span>나인 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(9,this)"><span class="rud-num">9</span>텐 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(10,this)"><span class="rud-num">10</span>일레븐 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(11,this)"><span class="rud-num">11</span>트웰브 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(12,this)"><span class="rud-num">12</span>서틴 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(13,this)"><span class="rud-num">13</span>피프틴 스트로크 롤</button>
-          <button class="rud-btn" onclick="selectRudiment(14,this)"><span class="rud-num">14</span>세븐틴 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(4,this)"><span class="rud-num">4</span>멀티플 바운스 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(5,this)"><span class="rud-num">5</span>트리플 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(6,this)"><span class="rud-num">6</span>더블 스트로크 오픈 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(7,this)"><span class="rud-num">7</span>파이브 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(8,this)"><span class="rud-num">8</span>식스 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(9,this)"><span class="rud-num">9</span>세븐 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(10,this)"><span class="rud-num">10</span>나인 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(11,this)"><span class="rud-num">11</span>텐 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(12,this)"><span class="rud-num">12</span>일레븐 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(13,this)"><span class="rud-num">13</span>서틴 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(14,this)"><span class="rud-num">14</span>피프틴 스트로크 롤</button>
+          <button class="rud-btn" onclick="selectRudiment(15,this)"><span class="rud-num">15</span>세븐틴 스트로크 롤</button>
         </div>
       </div>
       <div class="rudiment-category">
-        <div class="rudiment-cat-title">DIDDLES</div>
+        <div class="rudiment-cat-title">II. DIDDLES</div>
         <div class="rudiment-grid">
-          <button class="rud-btn" onclick="selectRudiment(15,this)"><span class="rud-num">15</span>싱글 패러디들</button>
-          <button class="rud-btn" onclick="selectRudiment(16,this)"><span class="rud-num">16</span>더블 패러디들</button>
-          <button class="rud-btn" onclick="selectRudiment(17,this)"><span class="rud-num">17</span>트리플 패러디들</button>
-          <button class="rud-btn" onclick="selectRudiment(18,this)"><span class="rud-num">18</span>패러디들 디들</button>
-          <button class="rud-btn" onclick="selectRudiment(19,this)"><span class="rud-num">19</span>싱글 래터마큐</button>
-          <button class="rud-btn" onclick="selectRudiment(20,this)"><span class="rud-num">20</span>싱글 드래그 탭</button>
-          <button class="rud-btn" onclick="selectRudiment(21,this)"><span class="rud-num">21</span>더블 드래그 탭</button>
-          <button class="rud-btn" onclick="selectRudiment(22,this)"><span class="rud-num">22</span>싱글 드래그래드</button>
-          <button class="rud-btn" onclick="selectRudiment(23,this)"><span class="rud-num">23</span>드래그 패러디들</button>
-          <button class="rud-btn" onclick="selectRudiment(24,this)"><span class="rud-num">24</span>더블 래터마큐</button>
-          <button class="rud-btn" onclick="selectRudiment(25,this)"><span class="rud-num">25</span>싱글 드래그</button>
+          <button class="rud-btn" onclick="selectRudiment(16,this)"><span class="rud-num">16</span>싱글 패러디들</button>
+          <button class="rud-btn" onclick="selectRudiment(17,this)"><span class="rud-num">17</span>더블 패러디들</button>
+          <button class="rud-btn" onclick="selectRudiment(18,this)"><span class="rud-num">18</span>트리플 패러디들</button>
+          <button class="rud-btn" onclick="selectRudiment(19,this)"><span class="rud-num">19</span>싱글 패러디들디들</button>
         </div>
       </div>
       <div class="rudiment-category">
-        <div class="rudiment-cat-title">FLAMS</div>
+        <div class="rudiment-cat-title">III. FLAMS</div>
         <div class="rudiment-grid">
-          <button class="rud-btn" onclick="selectRudiment(26,this)"><span class="rud-num">26</span>플램</button>
-          <button class="rud-btn" onclick="selectRudiment(27,this)"><span class="rud-num">27</span>플램 탭</button>
-          <button class="rud-btn" onclick="selectRudiment(28,this)"><span class="rud-num">28</span>플램마큐</button>
-          <button class="rud-btn" onclick="selectRudiment(29,this)"><span class="rud-num">29</span>플라마큐</button>
-          <button class="rud-btn" onclick="selectRudiment(30,this)"><span class="rud-num">30</span>플램 패러디들</button>
-          <button class="rud-btn" onclick="selectRudiment(31,this)"><span class="rud-num">31</span>패터플레</button>
-          <button class="rud-btn" onclick="selectRudiment(32,this)"><span class="rud-num">32</span>싱글 플레임드 밀</button>
-          <button class="rud-btn" onclick="selectRudiment(33,this)"><span class="rud-num">33</span>플램 어센트</button>
-          <button class="rud-btn" onclick="selectRudiment(34,this)"><span class="rud-num">34</span>플램 탭 #2</button>
-          <button class="rud-btn" onclick="selectRudiment(35,this)"><span class="rud-num">35</span>스위스 아미 트리플렛</button>
-          <button class="rud-btn" onclick="selectRudiment(36,this)"><span class="rud-num">36</span>인버티드 플라마큐</button>
-          <button class="rud-btn" onclick="selectRudiment(37,this)"><span class="rud-num">37</span>윈드밀</button>
+          <button class="rud-btn" onclick="selectRudiment(20,this)"><span class="rud-num">20</span>플램</button>
+          <button class="rud-btn" onclick="selectRudiment(21,this)"><span class="rud-num">21</span>플램 어센트</button>
+          <button class="rud-btn" onclick="selectRudiment(22,this)"><span class="rud-num">22</span>플램 탭</button>
+          <button class="rud-btn" onclick="selectRudiment(23,this)"><span class="rud-num">23</span>플라마큐</button>
+          <button class="rud-btn" onclick="selectRudiment(24,this)"><span class="rud-num">24</span>플램 패러디들</button>
+          <button class="rud-btn" onclick="selectRudiment(25,this)"><span class="rud-num">25</span>싱글 플레임드 밀</button>
+          <button class="rud-btn" onclick="selectRudiment(26,this)"><span class="rud-num">26</span>플램 패러디들디들</button>
+          <button class="rud-btn" onclick="selectRudiment(27,this)"><span class="rud-num">27</span>패터플라플라</button>
+          <button class="rud-btn" onclick="selectRudiment(28,this)"><span class="rud-num">28</span>스위스 아미 트리플렛</button>
+          <button class="rud-btn" onclick="selectRudiment(29,this)"><span class="rud-num">29</span>인버티드 플램 탭</button>
+          <button class="rud-btn" onclick="selectRudiment(30,this)"><span class="rud-num">30</span>플램 드래그</button>
         </div>
       </div>
       <div class="rudiment-category">
-        <div class="rudiment-cat-title">RUFFS</div>
+        <div class="rudiment-cat-title">IV. DRAGS</div>
         <div class="rudiment-grid">
-          <button class="rud-btn" onclick="selectRudiment(38,this)"><span class="rud-num">38</span>싱글 래터마큐 #2</button>
-          <button class="rud-btn" onclick="selectRudiment(39,this)"><span class="rud-num">39</span>트리플 래터마큐</button>
-          <button class="rud-btn" onclick="selectRudiment(40,this)"><span class="rud-num">40</span>더블 래터마큐 #2</button>
-        </div>
-      </div>
-
-      <!-- 루디먼트 조합 모드 -->
-      <div class="pattern-combo-toggle" style="margin-top:10px;">
-        <label class="toggle-switch">
-          <input type="checkbox" id="rudComboModeToggle" onchange="toggleRudComboMode(this.checked)">
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="pattern-combo-lbl">조합 모드 — 여러 루디먼트 이어 연주</span>
-      </div>
-      <div id="rudComboBar" style="display:none;margin-top:8px;">
-        <div class="combo-bar" id="rudComboTagList">
-          <span class="combo-empty-hint" id="rudComboEmptyHint">루디먼트를 클릭해서 조합에 추가하세요</span>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:6px;">
-          <button class="btn-combo-play" onclick="playRudCombo()">▶ 조합 연주</button>
-          <button class="btn-combo-clear" onclick="clearRudCombo()">✕ 초기화</button>
+          <button class="rud-btn" onclick="selectRudiment(31,this)"><span class="rud-num">31</span>드래그</button>
+          <button class="rud-btn" onclick="selectRudiment(32,this)"><span class="rud-num">32</span>싱글 드래그 탭</button>
+          <button class="rud-btn" onclick="selectRudiment(33,this)"><span class="rud-num">33</span>더블 드래그 탭</button>
+          <button class="rud-btn" onclick="selectRudiment(34,this)"><span class="rud-num">34</span>레슨 25</button>
+          <button class="rud-btn" onclick="selectRudiment(35,this)"><span class="rud-num">35</span>싱글 드래가디들</button>
+          <button class="rud-btn" onclick="selectRudiment(36,this)"><span class="rud-num">36</span>드래그 패러디들 #1</button>
+          <button class="rud-btn" onclick="selectRudiment(37,this)"><span class="rud-num">37</span>드래그 패러디들 #2</button>
+          <button class="rud-btn" onclick="selectRudiment(38,this)"><span class="rud-num">38</span>싱글 래터마큐</button>
+          <button class="rud-btn" onclick="selectRudiment(39,this)"><span class="rud-num">39</span>더블 래터마큐</button>
+          <button class="rud-btn" onclick="selectRudiment(40,this)"><span class="rud-num">40</span>트리플 래터마큐</button>
         </div>
       </div>
     </div><!-- /rudimentPanel -->
@@ -1897,16 +2065,6 @@ input[type=range].vertical.triplet::-moz-range-thumb {
       <div class="judge-count good"><div class="jlabel">GOOD</div><div class="jcount" id="cntGood">0</div></div>
       <div class="judge-count miss"><div class="jlabel">MISS</div><div class="jcount" id="cntMiss">0</div></div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">마이크 입력</div>
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <button class="btn-mic" id="micBtn" onclick="toggleMic()">🎤 마이크 연결</button>
-      <button class="btn-mic" onclick="openCalibration()">⚙️ 캘리브레이션</button>
-    </div>
-    <div class="mic-vol"><div class="mic-vol-bar" id="micVolBar"></div></div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-muted);text-align:center;margin-top:3px" id="micStatus">마이크 비활성</div>
   </div>
 
   <div class="card">
@@ -1970,7 +2128,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
       <div class="card" style="padding:16px;">
         <div class="card-title" style="margin-bottom:10px;">사운드</div>
         <div class="metro-sound-row">
-          <button class="metro-sound-btn active" onclick="mSetSound('beep',this)">디지털빕</button>
+          <button class="metro-sound-btn active" onclick="mSetSound('beep',this)">BEEP</button>
           <button class="metro-sound-btn" onclick="mSetSound('wood',this)">우드블록</button>
           <button class="metro-sound-btn" onclick="mSetSound('cow',this)">카우벨</button>
           <button class="metro-sound-btn" onclick="mSetSound('hihat',this)">하이햇</button>
@@ -2576,7 +2734,7 @@ let metroTick=0,lastTickTime=0,nextNoteTime=0,metroTimer=null;
 // R/L 독립 사운드 설정
 // 기본값: R=하이햇, L=림샷 (드럼 기본 배치)
 let soundR="beep";  // 오른손 사운드
-let soundL="rim";   // 왼손 사운드
+let soundL="beep";  // 왼손 사운드
 
 let noteDiv=1;
 const BEATS_PER_MEASURE=4;
@@ -2738,6 +2896,10 @@ function scheduleClick(time, note, noteGlobalIdx){
   // 정박 소리
   const snd=(note.h==="R")?soundR:soundL;
   playSound(ctx, snd, t, isAccent, noteGlobalIdx);
+  // 타이밍 레인용 현재 손 추적
+  const capturedHand = note.h;
+  const capturedDelay = Math.max(0,(t - (audioCtx?audioCtx.currentTime:0))*1000);
+  setTimeout(()=>{ lastHitHand = capturedHand; }, capturedDelay);
 }
 
 // 패턴을 1차원 노트 배열로 펼치기 (pre=grace는 별도 카운트 없이 노트에 붙임)
@@ -2779,6 +2941,8 @@ function schedulerLoop(){
     setTimeout(()=>{
       if(!isPlaying) return;
       lastTickTime=performance.now();
+      // 타이밍 레인용: 현재 노트 손 추적
+      if(flatNotes[capturedIdx]) lastHitHand = flatNotes[capturedIdx].h;
       onNoteTick(capturedIdx, capturedTick);
     },delay);
     nextNoteTime+=interval;
@@ -2902,17 +3066,70 @@ function renderBeatIcons(bidx,sidx){
   row.innerHTML="";
   const SL=["1","e","+","a"];
 
-  beat.forEach((note,i)=>{
-    const wrap=document.createElement("div");
-    wrap.className="note-icon"+(i===sidx?" current":"");
-    wrap.id="icon_"+i;
-    const circle=document.createElement("div");
-    circle.className="note-icon-circle "+note.h+(note.a?" accent":"");
-    circle.innerHTML="<span class='accent-mark'>></span>"+note.h;
-    const lbl=document.createElement("div");
-    lbl.className="sub-index";lbl.textContent=SL[i];
-    wrap.appendChild(circle);wrap.appendChild(lbl);row.appendChild(wrap);
-  });
+  if(beatViewMode === 'score'){
+    // ── 악보형: 음표 SVG ──
+    beat.forEach((note,i)=>{
+      const wrap=document.createElement("div");
+      wrap.className="note-icon-score"+(i===sidx?" current":"");
+      wrap.id="icon_"+i;
+      if(note.pre){
+        const graceRow=document.createElement("div");
+        graceRow.style.cssText="display:flex;align-items:flex-end;gap:2px;";
+        for(let gi=0;gi<note.pre.length;gi++) graceRow.appendChild(makeNoteSvg(note.pre[gi],false,true));
+        graceRow.appendChild(makeNoteSvg(note.h,note.a,false));
+        wrap.appendChild(graceRow);
+      } else {
+        wrap.appendChild(makeNoteSvg(note.h,note.a,false));
+      }
+      const hl=document.createElement("div"); hl.className="note-hand-lbl "+note.h; hl.textContent=note.h;
+      const sl=document.createElement("div"); sl.className="note-sub-lbl"; sl.textContent=SL[i]||"";
+      wrap.appendChild(hl); wrap.appendChild(sl); row.appendChild(wrap);
+    });
+  } else {
+    // ── 라운드형 (기존) ──
+    beat.forEach((note,i)=>{
+      const wrap=document.createElement("div");
+      wrap.className="note-icon"+(i===sidx?" current":"");
+      wrap.id="icon_"+i;
+      const circle=document.createElement("div");
+      circle.className="note-icon-circle "+note.h+(note.a?" accent":"");
+      const isDrag=note.pre&&note.pre.length===2;
+      const preHtml=note.pre?note.pre.split('').map(gh=>'<span class="grace-pre-label g'+gh+(isDrag?' drag':'')+'">'+gh.toLowerCase()+'</span>').join(''):'';
+      circle.innerHTML="<span class='accent-mark'>></span>"+preHtml+note.h;
+      const lbl=document.createElement("div"); lbl.className="sub-index"; lbl.textContent=SL[i];
+      wrap.appendChild(circle); wrap.appendChild(lbl); row.appendChild(wrap);
+    });
+  }
+}
+
+// 음표 SVG 생성 헬퍼 — 16분음표 기준
+function makeNoteSvg(hand, isAccent, isSmall){
+  const s=isSmall?0.62:1;
+  const W=Math.round(34*s), H=Math.round(56*s);
+  const cx=Math.round(14*s), cy=H-Math.round(10*s);
+  const rx=Math.round(10*s), ry=Math.round(7*s);
+  const sx=cx+Math.round(rx*0.9);
+  const sy0=Math.round(H*0.12);
+  const f1=sy0+Math.round(4*s), f2=f1+Math.round(H*0.14);
+  const fc=sx+Math.round(13*s);
+  const sw=Math.round(2*s); const fw=Math.round(1.7*s);
+  const div=document.createElement("div");
+  div.className="note-svg-wrap "+hand+(isAccent?" accent":"");
+  div.style.cssText="width:"+W+"px;height:"+H+"px;position:relative;flex-shrink:0;";
+  div.innerHTML=
+    '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" overflow="visible">'+
+    // 강박 꺾쇠
+    (isAccent?'<text class="note-head" x="'+cx+'" y="'+(sy0-2)+'" font-size="'+(Math.round(9*s))+'" font-family="Orbitron" font-weight="900" text-anchor="middle" dominant-baseline="auto">&gt;</text>':'')+
+    // 기둥
+    '<line class="note-stem" x1="'+sx+'" y1="'+cy+'" x2="'+sx+'" y2="'+sy0+'" stroke-width="'+sw+'" stroke-linecap="round"/>'+
+    // 꼬리 1
+    '<path class="note-flag" d="M'+sx+','+f1+' Q'+fc+','+(f1+Math.round(8*s))+' '+sx+','+f2+'" stroke-width="'+fw+'" stroke-linecap="round"/>'+
+    // 꼬리 2
+    '<path class="note-flag" d="M'+sx+','+(f2+Math.round(3*s))+' Q'+fc+','+(f2+Math.round(10*s))+' '+sx+','+(f2+Math.round(17*s))+'" stroke-width="'+fw+'" stroke-linecap="round"/>'+
+    // 음표 머리
+    '<ellipse class="note-head" cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" transform="rotate(-18 '+cx+' '+cy+')"/>'+
+    '</svg>';
+  return div;
 }
 
 // ============================
@@ -2966,12 +3183,12 @@ function renderScoreRail(key){
       const pairWrap=document.createElement("div");
       if(note.pre){
         pairWrap.className="grace-pair";
-        // grace 소문자들
         const preStr=note.pre; // 'L','R','LL','RR'
+        const isDrag=(preStr.length===2);
         for(let gi=0;gi<preStr.length;gi++){
           const gh=preStr[gi];
           const gb=document.createElement("div");
-          gb.className="note-box-grace g"+gh;
+          gb.className="note-box-grace g"+gh+(isDrag?" drag":"");
           gb.textContent=gh.toLowerCase();
           pairWrap.appendChild(gb);
         }
@@ -3005,262 +3222,217 @@ function highlightScoreRail(bidx,sidx){
 //  40 PAS 루디먼트 데이터
 // ════════════════════════════════════════
 const RUDIMENTS = {
-  // ── ROLLS ──────────────────────────────
-  1:{ name:"싱글 스트로크 롤", cat:"ROLL",
+  // ── I. ROLL RUDIMENTS ─────────────────────────────────
+  // A. Single Stroke Roll
+  1:{ name:"싱글 스트로크 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
       [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
     ]},
-  2:{ name:"싱글 스트로크 4", cat:"ROLL",
+  2:{ name:"싱글 스트로크 4", cat:"ROLL", timeSig:"4/4",
+    // RLRL LRLR (셋잇단 3개씩)
     beats:[
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"L",a:true},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}]
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:false}]
     ]},
-  3:{ name:"싱글 스트로크 7", cat:"ROLL",
+  3:{ name:"싱글 스트로크 7", cat:"ROLL", timeSig:"4/4",
+    // RLRLRLR LRLRLRL (7개)
     beats:[
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:true}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
     ]},
-  4:{ name:"더블 스트로크 오픈 롤", cat:"ROLL",
+  // B. Multiple Bounce Roll
+  4:{ name:"멀티플 바운스 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:true},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
       [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  5:{ name:"파이브 스트로크 롤", cat:"ROLL",
+  // C. Triple Stroke Roll — 3연음×4
+  5:{ name:"트리플 스트로크 롤", cat:"ROLL", timeSig:"4/4", triplet:true,
+    beats:[
+      [{h:"R",a:false},{h:"R",a:false},{h:"R",a:false}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"L",a:false}],
+      [{h:"R",a:false},{h:"R",a:false},{h:"R",a:false}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"L",a:false}]
+    ]},
+  // C. Double Stroke Open Roll
+  6:{ name:"더블 스트로크 오픈 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
       [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:true},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}]
+      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  6:{ name:"식스 스트로크 롤", cat:"ROLL",
+  7:{ name:"파이브 스트로크 롤", cat:"ROLL", timeSig:"4/4",
+    // RR LL R> / LL RR L>
     beats:[
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:true},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}]
+      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
     ]},
-  7:{ name:"세븐 스트로크 롤", cat:"ROLL",
+  8:{ name:"식스 스트로크 롤", cat:"ROLL", timeSig:"4/4",
+    // R LL RR L> (6개)
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:true},{h:"R",a:false}]
+      [{h:"R",a:true},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}],
+      [{h:"L",a:true},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}]
     ]},
-  8:{ name:"나인 스트로크 롤", cat:"ROLL",
+  9:{ name:"세븐 스트로크 롤", cat:"ROLL", timeSig:"4/4",
+    // RR LL RR L> (7개)
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
+      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}]
     ]},
-  9:{ name:"텐 스트로크 롤", cat:"ROLL",
+  10:{ name:"나인 스트로크 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:true},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}]
+      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
     ]},
-  10:{ name:"일레븐 스트로크 롤", cat:"ROLL",
+  11:{ name:"텐 스트로크 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:true},{h:"R",a:false}]
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:true}],
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:true}]
     ]},
-  11:{ name:"트웰브 스트로크 롤", cat:"ROLL",
+  12:{ name:"일레븐 스트로크 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:true},{h:"L",a:false}]
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
+      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
     ]},
-  12:{ name:"서틴 스트로크 롤", cat:"ROLL",
+  13:{ name:"서틴 스트로크 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
+      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
     ]},
-  13:{ name:"피프틴 스트로크 롤", cat:"ROLL",
+  14:{ name:"피프틴 스트로크 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:true},{h:"L",a:false},{h:"L",a:false}]
+      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
+      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
     ]},
-  14:{ name:"세븐틴 스트로크 롤", cat:"ROLL",
+  15:{ name:"세븐틴 스트로크 롤", cat:"ROLL", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
+      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
+      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
     ]},
-  // ── DIDDLES ────────────────────────────
-  15:{ name:"싱글 패러디들", cat:"DIDDLE",
+  // ── II. DIDDLE RUDIMENTS ──────────────────────────────
+  16:{ name:"싱글 패러디들", cat:"DIDDLE", timeSig:"4/4",
     beats:[
       [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
       [{h:"L",a:true},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  16:{ name:"더블 패러디들", cat:"DIDDLE",
+  17:{ name:"더블 패러디들", cat:"DIDDLE", timeSig:"4/4",
     beats:[
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
+      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
+      [{h:"L",a:true},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  17:{ name:"트리플 패러디들", cat:"DIDDLE",
+  18:{ name:"트리플 패러디들", cat:"DIDDLE", timeSig:"4/4",
     beats:[
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:true},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
+      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
+      [{h:"L",a:true},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  18:{ name:"패러디들 디들", cat:"DIDDLE",
+  19:{ name:"싱글 패러디들디들", cat:"DIDDLE", timeSig:"4/4",
     beats:[
-      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:true},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
+      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}],
+      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  19:{ name:"싱글 래터마큐", cat:"DIDDLE", timeSig:"3/4",
-    beats:[
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"L",a:false}]
-    ]},
-  // ── 드래그/플램 계열: pre = 싱글 grace (항상 1개)
-  20:{ name:"싱글 드래그 탭", cat:"DIDDLE", timeSig:"4/4",
-    beats:[
-      [{h:"L",a:false,pre:"R"},{h:"R",a:false}],
-      [{h:"L",a:false,pre:"R"},{h:"R",a:false}]
-    ]},
-  21:{ name:"더블 드래그 탭", cat:"DIDDLE", timeSig:"3/4",
-    beats:[
-      [{h:"R",a:false},{h:"L",a:false,pre:"R"},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false,pre:"L"},{h:"L",a:false}]
-    ]},
-  22:{ name:"싱글 드래그래드", cat:"DIDDLE", timeSig:"4/4",
-    // (r)R  R  (r)L  L
-    beats:[
-      [{h:"R",a:false,pre:"L"},{h:"R",a:false}],
-      [{h:"L",a:false,pre:"R"},{h:"L",a:false}]
-    ]},
-  23:{ name:"드래그 패러디들", cat:"DIDDLE", timeSig:"4/4",
-    // (r)R>  R  L  R  /  (r)L>  L  R  L
-    beats:[
-      [{h:"R",a:true,pre:"L"},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:true,pre:"R"},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
-    ]},
-  24:{ name:"더블 래터마큐", cat:"DIDDLE", timeSig:"4/4",
-    // R  L  R  R  (r)L  R  L  L
-    beats:[
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:false,pre:"R"},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
-    ]},
-  25:{ name:"싱글 드래그", cat:"DIDDLE", timeSig:"3/4",
-    // R  R  L  R  /  (r)L  L  R  L
-    beats:[
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:true},{h:"R",a:false}],
-      [{h:"L",a:false,pre:"R"},{h:"L",a:false},{h:"R",a:true},{h:"L",a:false}]
-    ]},
-  // ── FLAMS — pre = 싱글 grace ─────────────────────────
-  26:{ name:"플램", cat:"FLAM", timeSig:"3/4",
-    // (r)L  R  L  L  R  /  (r)R  L  R  R  L
-    beats:[
-      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false}]
-    ]},
-  27:{ name:"플램 탭", cat:"FLAM", timeSig:"4/4",
-    // (r)L  R  L  L  R  R
-    beats:[
-      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:true,pre:"R"},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
-    ]},
-  28:{ name:"플램마큐", cat:"FLAM", timeSig:"3/4",
-    // (r)L  R  L  (r)R  L  R
-    beats:[
-      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:true,pre:"R"},{h:"R",a:false},{h:"L",a:false}]
-    ]},
-  29:{ name:"플라마큐", cat:"FLAM", timeSig:"3/4",
-    // R  L  (r)L  R  /  L  R  (r)R  L
-    beats:[
-      [{h:"R",a:false},{h:"L",a:false},{h:"L",a:true,pre:"R"}],
-      [{h:"L",a:false},{h:"R",a:false},{h:"R",a:true,pre:"L"}]
-    ]},
-  30:{ name:"플램 패러디들", cat:"FLAM", timeSig:"3/4",
-    // R  L  L  R  /  (r)L  R  R  L
-    beats:[
-      [{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false,pre:"R"},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false}]
-    ]},
-  31:{ name:"패터플레", cat:"FLAM", timeSig:"4/4",
-    // L  L  R  R  L
-    beats:[
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:false}]
-    ]},
-  32:{ name:"싱글 플레임드 밀", cat:"FLAM", timeSig:"3/4",
-    // L  L  R>  R  R  L>
-    beats:[
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
-    ]},
-  33:{ name:"플램 어센트", cat:"FLAM", timeSig:"3/4",
-    // L  L  R  L  L  R>  /  R  R  L  R  R  L>
-    beats:[
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:true}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
-    ]},
-  34:{ name:"플램 탭 #2", cat:"FLAM", timeSig:"4/4",
-    // (r)R / L  L  R  L>  /  R  R  L>
+  // ── III. FLAM RUDIMENTS — pre:"L"/"R" = 싱글 grace ──
+  20:{ name:"플램", cat:"FLAM", timeSig:"4/4",
     beats:[
       [{h:"R",a:true,pre:"L"}],
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:true}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:true}]
+      [{h:"L",a:true,pre:"R"}]
     ]},
-  35:{ name:"스위스 아미 트리플렛", cat:"FLAM", timeSig:"4/4",
-    // L  L  R  L>  R  R  L  R>  L  L  R  L  L
+  21:{ name:"플램 어센트", cat:"FLAM", timeSig:"4/4",
     beats:[
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:true}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:true}],
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false,pre:"L"},{h:"L",a:false},{h:"R",a:false}]
+    ]},
+  22:{ name:"플램 탭", cat:"FLAM", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true,pre:"L"},{h:"R",a:false},{h:"R",a:false,pre:"L"},{h:"L",a:false}],
+      [{h:"L",a:true,pre:"R"},{h:"L",a:false},{h:"L",a:true,pre:"R"},{h:"R",a:false}]
+    ]},
+  23:{ name:"플라마큐", cat:"FLAM", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false,pre:"L"}],
+      [{h:"R",a:false},{h:"L",a:true,pre:"R"},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false,pre:"R"}],
       [{h:"L",a:false}]
     ]},
-  36:{ name:"인버티드 플라마큐", cat:"FLAM", timeSig:"3/4",
-    // R  L  L  R  /  L  R  R  L  R  L  L  /  R  L  L
+  24:{ name:"플램 패러디들", cat:"FLAM", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
+      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false,pre:"L"},{h:"A",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  37:{ name:"윈드밀", cat:"FLAM", timeSig:"4/4",
-    // R  L  L  R  L  L  /  R  L  R  R  L  R  R  L  R  L  L
+  25:{ name:"싱글 플레임드 밀", cat:"FLAM", timeSig:"4/4",
     beats:[
-      [{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
+      [{h:"R",a:true,pre:"L"},{h:"R",a:false},{h:"R",a:false,pre:"L"},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"L",a:true,pre:"R"},{h:"L",a:false},{h:"L",a:false,pre:"R"},{h:"R",a:false},{h:"L",a:false}]
     ]},
-  // ── RUFFS ────────────────────────────────────────────
-  38:{ name:"싱글 래터마큐 #2", cat:"RUFF", timeSig:"3/2",
-    // 셋잇단음표 계열 L  L  L  R  L  R> / R  R  R  L  R  L>
+  26:{ name:"플램 패러디들디들", cat:"FLAM", timeSig:"4/4",
     beats:[
-      [{h:"L",a:false},{h:"L",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:true}],
-      [{h:"R",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false},{h:"L",a:true}]
+      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false,pre:"L"},{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false}]
     ]},
-  39:{ name:"트리플 래터마큐", cat:"RUFF", timeSig:"4/4",
-    // L  L  R  L  L  R  L  R  (셋잇단음표)
+  27:{ name:"패터플라플라", cat:"FLAM", timeSig:"4/4",
     beats:[
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false}]
+      [{h:"R",a:true,pre:"L"},{h:"R",a:false},{h:"R",a:false,pre:"L"},{h:"L",a:false},{h:"L",a:false,pre:"R"},{h:"R",a:false},{h:"R",a:false,pre:"L"},{h:"L",a:false}]
     ]},
-  40:{ name:"더블 래터마큐 #2", cat:"RUFF", timeSig:"4/4",
-    // L  L  R  L  L  R  /  R  R  L  R  R  L  R  L  R>
+  28:{ name:"스위스 아미 트리플렛", cat:"FLAM", timeSig:"4/4", triplet:true,
     beats:[
-      [{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"R",a:false}],
-      [{h:"L",a:false},{h:"R",a:false},{h:"R",a:false},{h:"L",a:false}],
-      [{h:"R",a:false},{h:"L",a:false},{h:"R",a:true}]
+      [{h:"R",a:true,pre:"L"},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"L",a:true,pre:"R"},{h:"L",a:false},{h:"R",a:false}]
+    ]},
+  29:{ name:"인버티드 플램 탭", cat:"FLAM", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true},{h:"L",a:false,pre:"R"},{h:"R",a:true},{h:"L",a:false,pre:"R"}],
+      [{h:"L",a:true},{h:"R",a:false,pre:"L"},{h:"L",a:true},{h:"R",a:false,pre:"L"}]
+    ]},
+  30:{ name:"플램 드래그", cat:"FLAM", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true,pre:"L"},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false,pre:"LL"}],
+      [{h:"R",a:false},{h:"L",a:true,pre:"R"},{h:"R",a:false},{h:"R",a:false,pre:"RR"},{h:"L",a:false}]
+    ]},
+  // ── IV. DRAG RUDIMENTS — pre:"LL"/"RR" = 더블 grace ─
+  31:{ name:"드래그", cat:"DRAG", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true,pre:"LL"},{h:"R",a:false,pre:"RR"},{h:"L",a:false}]
+    ]},
+  32:{ name:"싱글 드래그 탭", cat:"DRAG", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true,pre:"LL"},{h:"L",a:false},{h:"R",a:false,pre:"RR"},{h:"L",a:true},{h:"R",a:false}]
+    ]},
+  33:{ name:"더블 드래그 탭", cat:"DRAG", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:false,pre:"LL"},{h:"L",a:false},{h:"R",a:false,pre:"LL"},{h:"R",a:true},{h:"L",a:false},{h:"R",a:false,pre:"RR"},{h:"L",a:true},{h:"R",a:false}]
+    ]},
+  34:{ name:"레슨 25", cat:"DRAG", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:false,pre:"LL"},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false,pre:"LL"},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"R",a:false,pre:"RR"},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false,pre:"RR"},{h:"R",a:false},{h:"L",a:false}]
+    ]},
+  35:{ name:"싱글 드래가디들", cat:"DRAG", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false,pre:"LL"},{h:"L",a:false},{h:"L",a:false}]
+    ]},
+  36:{ name:"드래그 패러디들 #1", cat:"DRAG", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false,pre:"LL"},{h:"L",a:false},{h:"L",a:false}]
+    ]},
+  37:{ name:"드래그 패러디들 #2", cat:"DRAG", timeSig:"4/4",
+    beats:[
+      [{h:"R",a:true},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"R",a:false,pre:"LL"},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false},{h:"L",a:false},{h:"R",a:false},{h:"L",a:false}]
+    ]},
+  38:{ name:"싱글 래터마큐", cat:"DRAG", timeSig:"4/4", triplet:true,
+    beats:[
+      [{h:"L",a:false,pre:"LL"},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false}]
+    ]},
+  39:{ name:"더블 래터마큐", cat:"DRAG", timeSig:"4/4", triplet:true,
+    beats:[
+      [{h:"L",a:false,pre:"LL"},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:false,pre:"RR"},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"L",a:true},{h:"R",a:false},{h:"L",a:false}]
+    ]},
+  40:{ name:"트리플 래터마큐", cat:"DRAG", timeSig:"4/4", triplet:true,
+    beats:[
+      [{h:"L",a:false,pre:"LL"},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:false,pre:"RR"},{h:"L",a:false},{h:"R",a:false}],
+      [{h:"L",a:false,pre:"LL"},{h:"R",a:false},{h:"L",a:false}],
+      [{h:"R",a:true},{h:"L",a:false},{h:"R",a:false}]
     ]}
 };
 
@@ -3432,6 +3604,48 @@ function playRudCombo(){
   const el_cat  = document.getElementById('rudInfoCat');
   if(el_name) el_name.textContent = '조합 (' + comboName + ')';
   if(el_cat)  el_cat.textContent  = 'COMBO';
+}
+
+
+// ════════════════════════════════════════
+//  SWAP — R↔L 손 전환
+// ════════════════════════════════════════
+let swapActive = false;
+
+function toggleSwap(btn) {
+  swapActive = !swapActive;
+  btn.classList.toggle('swapped', swapActive);
+
+  // 패턴 데이터의 모든 노트 R↔L 반전
+  Object.keys(PATTERNS).forEach(key => {
+    PATTERNS[key].beats.forEach(beat => {
+      beat.forEach(note => {
+        note.h = note.h === 'R' ? 'L' : 'R';
+        if (note.pre) {
+          note.pre = note.pre.split('').map(c => c === 'R' ? 'L' : 'R').join('');
+        }
+      });
+    });
+  });
+
+  // RUDIMENTS 데이터도 반전
+  Object.keys(RUDIMENTS).forEach(key => {
+    RUDIMENTS[key].beats.forEach(beat => {
+      beat.forEach(note => {
+        note.h = note.h === 'R' ? 'L' : 'R';
+        if (note.pre) {
+          note.pre = note.pre.split('').map(c => c === 'R' ? 'L' : 'R').join('');
+        }
+      });
+    });
+  });
+
+  // flatNotes 재생성
+  flatNotes = getFlatNotes(currentPatternKey);
+
+  // 악보 다시 렌더
+  renderScoreRail(currentPatternKey);
+  renderBeatIcons(currentBeatIdx, currentSubIdx);
 }
 
 // ════ 패턴 조합 시스템 ════
@@ -3630,17 +3844,28 @@ function detectHits(){
 //  SCORING
 // ============================
 let score=0,combo=0,maxCombo=0,counts={perfect:0,good:0,miss:0},totalHits=0;
-function onHitDetected(rms,hitTime){
+let lastHitHand = 'R';  // 타이밍 레인용 마지막 손 추적
+function _coreOnHit(rms,hitTime){
   spawnParticles("default");
+  const diff=hitTime-lastTickTime;
+  const clamped=Math.max(-100,Math.min(100,diff));
+  // 타이밍 레인: 항상 표시 (isPlaying 여부 무관)
+  const tlHand = lastHitHand || 'R';
+  tlAddHit(tlHand, clamped);
+  const el=document.getElementById('tlLastMs');
+  if(el){
+    const col=Math.abs(clamped)<=20?'var(--hit-ok)':Math.abs(clamped)<=50?'var(--hit-good)':'var(--hit-miss)';
+    el.textContent=(clamped>0?'+':'')+Math.round(clamped)+'ms';
+    el.style.color=col;
+  }
   if(!isPlaying) return;
-  const diff=hitTime-lastTickTime,clamped=Math.max(-100,Math.min(100,diff));
   let jdg="";
   if(Math.abs(clamped)<=20){jdg="PERFECT";counts.perfect++;score+=300+combo*2;combo++;}
   else if(Math.abs(clamped)<=50){jdg="GOOD";counts.good++;score+=100+combo;combo++;}
   else{jdg="MISS";counts.miss++;combo=0;}
   if(combo>maxCombo) maxCombo=combo;
   totalHits++;
-  showJudgment(jdg);updateTimingBar(clamped);updateScoreUI();markNoteHit(jdg.toLowerCase());spawnParticles(jdg.toLowerCase());
+  showJudgment(jdg);updateScoreUI();markNoteHit(jdg.toLowerCase());spawnParticles(jdg.toLowerCase());
 }
 function showJudgment(type){
   const el=document.getElementById("judgmentText");
@@ -3650,15 +3875,116 @@ function showJudgment(type){
   const fl=document.getElementById("hitFlash");
   fl.className="hit-flash "+type.toLowerCase()+" show";setTimeout(()=>fl.classList.remove("show"),200);
 }
-function updateTimingBar(ms){
-  const mk=document.getElementById("timingMarker");
-  mk.style.left=(50+(ms/100)*50)+"%";mk.style.opacity="1";
-  mk.style.background=Math.abs(ms)<=20?"var(--hit-ok)":Math.abs(ms)<=50?"var(--hit-good)":"var(--hit-miss)";
-  setTimeout(()=>mk.style.opacity="0",500);
-  const e=document.getElementById("timingMs");
-  e.textContent=(ms>0?"+":"")+Math.round(ms)+"ms";
-  e.style.color=Math.abs(ms)<=20?"var(--hit-ok)":Math.abs(ms)<=50?"var(--hit-good)":"var(--hit-miss)";
+
+// ════════════════════════════════════════
+//  R/L 분리 타이밍 레인
+// ════════════════════════════════════════
+const TL_MAX_HITS = 20;      // 레인에 보이는 최대 막대 수
+const TL_RANGE_MS = 100;     // ±100ms 범위
+const TL_FADE_MS  = 3000;    // 막대 페이드아웃 시간
+
+// 히트 기록
+let tlHitsR = [];  // [{ms, time}]
+let tlHitsL = [];
+
+function tlAddHit(hand, ms) {
+  const arr = hand === 'R' ? tlHitsR : tlHitsL;
+  arr.push({ ms, t: Date.now() });
+  if (arr.length > TL_MAX_HITS) arr.shift();
+  tlRender(hand);
+
+  // 최근 ms 표시
+  const col = Math.abs(ms) <= 20 ? 'var(--hit-ok)'
+            : Math.abs(ms) <= 50 ? 'var(--hit-good)' : 'var(--hit-miss)';
+  const el = document.getElementById('tlLastMs');
+  if (el) {
+    el.textContent = (ms > 0 ? '+' : '') + Math.round(ms) + 'ms';
+    el.style.color = col;
+  }
 }
+
+function tlRender(hand) {
+  const track = document.getElementById('tlTrack' + hand);
+  if (!track) return;
+
+  track.querySelectorAll('.tl-hit-v').forEach(e => e.remove());
+
+  const arr = hand === 'R' ? tlHitsR : tlHitsL;
+  const now = Date.now();
+
+  arr.forEach(({ ms, t }) => {
+    const bar = document.createElement('div');
+    bar.className = 'tl-hit-v ' +
+      (Math.abs(ms) <= 20 ? 'perfect' : Math.abs(ms) <= 50 ? 'good' : 'miss');
+
+    // 세로 위치: 중앙(50%) = 0ms, 위 = Early, 아래 = Late
+    const pct = 50 + (ms / TL_RANGE_MS) * 50;
+    bar.style.top = Math.max(2, Math.min(96, pct)) + '%';
+
+    const age = now - t;
+    bar.style.opacity = Math.max(0.15, 1 - age / TL_FADE_MS);
+
+    track.appendChild(bar);
+  });
+}
+
+// 페이드아웃 루프 (500ms마다)
+setInterval(() => {
+  ['R', 'L'].forEach(h => tlRender(h));
+}, 500);
+
+function tlClear() {
+  tlHitsR = []; tlHitsL = [];
+  ['R', 'L'].forEach(h => {
+    const track = document.getElementById('tlTrack' + h);
+    if (track) track.querySelectorAll('.tl-hit-v').forEach(e => e.remove());
+  });
+}
+
+// ════════════════════════════════════════
+//  뷰 전환 (라운드형 / 악보형)
+// ════════════════════════════════════════
+let beatViewMode = 'round';
+
+function setBeatView(mode, btn) {
+  beatViewMode = mode;
+  document.querySelectorAll('.beat-view-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const row = document.getElementById('noteIconsRow');
+  if (!row) return;
+  row.classList.remove('round-view', 'score-view');
+  row.classList.add(mode === 'score' ? 'score-view' : 'round-view');
+}
+
+function updateTimingBar(ms){
+  // 구 타이밍 마커 (호환 유지, 레인에도 추가)
+  const mk=document.getElementById("timingMarker");
+  if(mk){ mk.style.left=(50+(ms/100)*50)+"%"; mk.style.opacity="1";
+    mk.style.background=Math.abs(ms)<=20?"var(--hit-ok)":Math.abs(ms)<=50?"var(--hit-good)":"var(--hit-miss)";
+    setTimeout(()=>mk.style.opacity="0",500); }
+  // 새 R/L 레인에 히트 추가
+  const hand = (currentNote && currentNote.h) ? currentNote.h : lastHitHand;
+  tlAddHit(hand || 'R', ms);
+}
+
+// ════════════════════════════════════════
+//  통합 onHitDetected — 모든 훅 단일 함수로
+// ════════════════════════════════════════
+function onHitDetected(rms, hitTime){
+  // 1. 순수 연습 타이머 (PPT)
+  if(rms >= PPT_RMS_THRESH){
+    pptOnHit();
+  }
+  // 2. 랜덤 테스트 모드
+  if(testState && testState.active){
+    onTestHit(hitTime);
+    return;
+  }
+  // 3. 일반 트레이닝 채점
+  _coreOnHit(rms, hitTime);
+}
+
 function updateScoreUI(){
   document.getElementById("scoreDisplay").textContent=score.toLocaleString();
   document.getElementById("cntPerfect").textContent=counts.perfect;
@@ -3670,12 +3996,22 @@ function updateScoreUI(){
   if(combo>=2){c.textContent=combo+" COMBO";c.classList.add("glow");setTimeout(()=>c.classList.remove("glow"),200);}else c.textContent="";
   const acc=totalHits>0?Math.round((counts.perfect+counts.good)/totalHits*100):0;
   document.getElementById("statAccuracy").textContent=acc+"%";
+  // 30타마다 AI 자동 피드백
+  if(totalHits>0 && totalHits%30===0){ triggerAutoFeedback(); }
 }
 function markNoteHit(type){
   const cell=document.getElementById("cell_"+currentBeatIdx+"_"+currentSubIdx);
   if(cell){cell.classList.add("hit-"+type);setTimeout(()=>cell.classList.remove("hit-"+type),400);}
   const icon=document.getElementById("icon_"+currentSubIdx);
-  if(icon){const circle=icon.querySelector(".note-icon-circle");if(circle){circle.style.background=type==="perfect"?"rgba(57,255,20,0.3)":type==="good"?"rgba(255,224,0,0.2)":"rgba(255,42,109,0.15)";setTimeout(()=>circle.style.background="",300);}}
+  if(icon){
+    if(beatViewMode==='score'){
+      icon.classList.add("hit-"+type);
+      setTimeout(()=>icon.classList.remove("hit-perfect","hit-good","hit-miss"),350);
+    } else {
+      const circle=icon.querySelector(".note-icon-circle");
+      if(circle){circle.style.background=type==="perfect"?"rgba(57,255,20,0.3)":type==="good"?"rgba(255,224,0,0.2)":"rgba(255,42,109,0.15)";setTimeout(()=>circle.style.background="",300);}
+    }
+  }
   // noteDiv 모드에 따른 서브인덱스 진행
   // (메트로놈이 이미 onBeatTick에서 currentSubIdx를 세팅하므로 마이크 히트 시에는 별도 진행 불필요)
   // 단, 16분음표 모드에서 메트로놈 없이 마이크만 쓸 경우를 위해 진행
@@ -4530,6 +4866,11 @@ function switchTab(tab, btn){
   const tv=document.getElementById('trainingView');
   const sv=document.getElementById('statsView');
   const mv=document.getElementById('metroView');
+
+  // 탭 전환 시 각 메트로놈 정지
+  if(isPlaying) toggleMetronome();          // 트레이닝 메트로놈 정지
+  if(mIsPlaying) toggleMetroMode();         // 메트로놈 탭 정지
+
   // 전부 숨기기
   tv.classList.add('hidden');
   sv.classList.remove('active');
@@ -4710,16 +5051,7 @@ function kakaoShare() {
   });
 }
 
-// ── onHitDetected에 PPT 훅 연결 ──────────────────────────────────
-// 기존 onHitDetected를 래핑
-const _pptOrigOnHit = onHitDetected;
-function onHitDetected(rms, hitTime) {
-  // 드럼 타격 전용 판별: RMS가 충분히 크고 HPF 통과한 신호
-  if (rms >= PPT_RMS_THRESH) {
-    pptOnHit();
-  }
-  _pptOrigOnHit(rms, hitTime);
-}
+// PPT 훅은 통합 onHitDetected에서 처리
 
 // 메트로놈 모드에서도 PPT 작동
 // (mSchedulerLoop의 lastTickTime 기반이 아닌 마이크 감지 기반이므로 별도 훅 불필요)
@@ -4799,6 +5131,7 @@ function endSession(){
   stopSessionTimer();
   sessionStartTime=null;
   document.getElementById('sessionTimer').textContent='00:00';
+  tlClear();
 
   // 저장 피드백
   showSaveToast(acc);
@@ -4834,6 +5167,7 @@ function renderStatsView(){
   renderBpmChart(sessions,'daily');
   renderPatternBars(sessions);
   renderSessionTable(sessions);
+  renderRanking(rankMode);
 }
 
 // ── 요약 카드 ──
@@ -5083,9 +5417,7 @@ function renderSessionTable(sessions){
 }
 
 // ── 세션 타이머 자동 시작 (메트로놈 START 시) ──
-// toggleMetronome 래핑
-const _origToggle=toggleMetronome;
-// 이미 async function이므로 직접 패치
+// toggleMetronome (래핑 불필요)
 
 
 // ════════════════════════════════════════
@@ -5381,11 +5713,7 @@ function showTestScreen(id){
 }
 
 // ── 마이크 히트를 테스트에도 연결 ──
-const _origOnHit=onHitDetected;
-function onHitDetected(rms,hitTime){
-  if(testState.active){ onTestHit(hitTime); return; }
-  _origOnHit(rms,hitTime);
-}
+// Test 훅은 통합 onHitDetected에서 처리
 
 // ════════════════════════════════════════
 //  글로벌 랭킹 (가상 + 내 기록)
@@ -5470,12 +5798,7 @@ function renderRanking(mode){
   }).join('');
 }
 
-// renderStatsView에 랭킹 추가
-const _origRenderStats=renderStatsView;
-function renderStatsView(){
-  _origRenderStats();
-  renderRanking(rankMode);
-}
+// renderStatsView: 랭킹이 원본에 통합됨
 
 
 // ════════════════════════════════════════
@@ -5693,24 +6016,37 @@ function showCoachMessage(text, isAuto = false) {
   }
 }
 
-// ── updateScoreUI에 자동 피드백 훅 ──
-const _origUpdateScoreUI = updateScoreUI;
-function updateScoreUI() {
-  _origUpdateScoreUI();
-  // 30타마다 자동 분석
-  if (totalHits > 0 && totalHits % 30 === 0) {
-    triggerAutoFeedback();
-  }
-}
+// updateScoreUI: 자동 피드백이 원본에 통합됨
 
 function init(){
   flatNotes=getFlatNotes("paradiddle");
   buildBeatDots();
   renderScoreRail("paradiddle");
   renderBeatIcons(0,0);
-  // 모든 슬라이더 초기 스타일 반영
   document.querySelectorAll("input[type=range]").forEach(updateRangeStyle);
   document.getElementById("patternInfoText").innerHTML=PATTERNS["paradiddle"].desc.replace(/\n/g,"<br>");
+
+  // iOS Safari: 첫 터치/클릭 시 AudioContext unlock
+  function unlockAudio(){
+    if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state !== 'running'){
+      audioCtx.resume().catch(()=>{});
+    }
+    // 짧은 무음 버퍼 재생 (iOS 강제 언락)
+    try{
+      const buf = audioCtx.createBuffer(1, 1, 22050);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start(0);
+    }catch(e){}
+    document.removeEventListener('touchstart', unlockAudio);
+    document.removeEventListener('touchend', unlockAudio);
+    document.removeEventListener('click', unlockAudio);
+  }
+  document.addEventListener('touchstart', unlockAudio, {passive:true});
+  document.addEventListener('touchend',   unlockAudio, {passive:true});
+  document.addEventListener('click',      unlockAudio, {passive:true});
 }
 init();
 </script>
