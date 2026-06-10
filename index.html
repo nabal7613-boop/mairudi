@@ -1653,14 +1653,15 @@ input[type=range].vertical.triplet::-moz-range-thumb {
   position: relative;
   flex: 1;
   width: 100%;
+  min-height: 80px;
   background: rgba(255,255,255,0.04);
   border-radius: 6px;
-  overflow: hidden;
+  overflow: visible;   /* hidden이면 absolute 자식이 잘릴 수 있음 */
   border: 1px solid rgba(255,255,255,0.1);
 }
 /* 가로 구역선 (세로 레인에서는 가로로) */
 .timing-lane-zone-v {
-  position: absolute; left: 0; right: 0; pointer-events: none;
+  position: absolute; left: 0; right: 0; pointer-events: none; z-index: 1;
 }
 .timing-lane-zone-v.good-v {
   top: 25%; height: 50%;
@@ -1673,20 +1674,20 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 .timing-lane-center-v {
   position: absolute; left: 0; right: 0;
   top: 50%; height: 1px;
-  background: rgba(255,255,255,0.2);
-  pointer-events: none;
+  background: rgba(255,255,255,0.25);
+  pointer-events: none; z-index: 1;
 }
 /* 세로형 히트 막대 (가로) */
 .tl-hit-v {
   position: absolute;
   left: 3px; right: 3px;
-  height: 5px;
+  height: 6px;
   border-radius: 3px;
   transform: translateY(-50%);
   opacity: 1;
   transition: opacity 2s ease;
   pointer-events: none;
-  z-index: 2;
+  z-index: 10;
 }
 .tl-hit-v.perfect { background: var(--hit-ok);   box-shadow: 0 0 8px var(--hit-ok); }
 .tl-hit-v.good    { background: var(--hit-good);  box-shadow: 0 0 6px var(--hit-good); }
