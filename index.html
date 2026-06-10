@@ -4060,8 +4060,13 @@ function spawnParticles(type){
   const c=document.getElementById("particleContainer");
   const cols={perfect:"#39FF14",good:"#FFE000",miss:"#FF2A6D",default:"#00E5FF"};
   const col=cols[type]||cols.default;
-  const el=document.getElementById("beatIconCard"),rect=el.getBoundingClientRect();
-  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  // 현재 타격 노트 아이콘 위치에서 터지도록
+  const iconEl = document.getElementById("icon_"+currentSubIdx);
+  const fallback = document.getElementById("beatIconCard");
+  const el = iconEl || fallback;
+  if(!el) return;
+  const rect=el.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
   for(let i=0;i<10;i++){
     const p=document.createElement("div");p.className="particle";
     const angle=(i/10)*Math.PI*2,dist=30+Math.random()*50;
