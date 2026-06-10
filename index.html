@@ -3805,32 +3805,33 @@ let sensitivity=8,calibratedThreshold=5,lastHitTime=0;
 async function toggleMic(){micActive?stopMic():await startMic();}
 async function startMic(){
   try{
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: false
-      }
-    });
+    // 단계 1: 스트림 요청
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
     micStream = stream;
 
-    // iOS: 별도 AudioContext 생성, resume 필수
+    // 단계 2: AudioContext 생성
     const micCtx = new (window.AudioContext || window.webkitAudioContext)();
     await micCtx.resume();
 
+    // 단계 3: 분석기 연결
     const src = micCtx.createMediaStreamSource(stream);
     analyser = micCtx.createAnalyser();
-    analyser.fftSize = 512;              // iOS: 작을수록 안정적
-    analyser.smoothingTimeConstant = 0;  // 스무딩 없애야 빠른 타격 감지
-
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0;
     src.connect(analyser);
+
+    // 단계 4: 실제로 데이터 오는지 확인
+    const testBuf = new Uint8Array(analyser.fftSize);
+    analyser.getByteTimeDomainData(testBuf);
+    const testAvg = testBuf.reduce((a,b)=>a+Math.abs(b-128),0)/testBuf.length;
+    alert('마이크 연결 성공!\nAudioContext: '+micCtx.state+'\nfftSize: '+analyser.fftSize+'\n초기 평균 신호: '+testAvg.toFixed(2));
+
     micActive = true;
     setStatus("listening","마이크 감지중");
     startWaveform(); detectHits();
   } catch(e) {
-    setStatus("error","마이크 오류");
-    console.error("마이크 오류:", e.name, e.message);
-    alert("마이크 오류: " + e.name + " - " + e.message);
+    alert("마이크 오류: " + e.name + "\n" + e.message);
+    console.error("마이크 오류:", e);
   }
 }
 function stopMic(){
