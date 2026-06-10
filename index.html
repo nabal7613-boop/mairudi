@@ -3806,29 +3806,25 @@ async function startMic(){
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
     micStream=stream;const ctx=getAudioCtx();
+    if(ctx.state!=='running') await ctx.resume();
     const src=ctx.createMediaStreamSource(stream);
     const hpf=ctx.createBiquadFilter();hpf.type="highpass";hpf.frequency.value=200;hpf.Q.value=0.5;
     analyser=ctx.createAnalyser();analyser.fftSize=512;analyser.smoothingTimeConstant=0.1;
     src.connect(hpf);hpf.connect(analyser);
     micActive=true;
-    document.getElementById("micBtn").textContent="🎤 마이크 끊기";
-    document.getElementById("micBtn").classList.add("active");
-    document.getElementById("micStatus").textContent="마이크 활성 — 감지중";
     setStatus("listening","마이크 감지중");
-    startWaveform();detectHits();
-  }catch(e){setStatus("error","마이크 오류");document.getElementById("micStatus").textContent="접근 실패: "+e.message;}
+    detectHits();
+  }catch(e){setStatus("error","마이크 오류");console.error("마이크 오류:",e);}
 }
 function stopMic(){
   if(micStream) micStream.getTracks().forEach(t=>t.stop());
   micStream=null;micActive=false;cancelAnimationFrame(animFrame);
-  document.getElementById("micBtn").textContent="🎤 마이크 연결";
-  document.getElementById("micBtn").classList.remove("active");
-  document.getElementById("micStatus").textContent="마이크 비활성";
-  document.getElementById("micVolBar").style.width="0%";
   if(!isPlaying) setStatus("idle","대기중");
 }
 function startWaveform(){
-  const canvas=document.getElementById("waveCanvas"),c=canvas.getContext("2d");
+  const canvas=document.getElementById("waveCanvas");
+  if(!canvas) return;
+  const c=canvas.getContext("2d");
   function draw(){
     if(!micActive) return;
     animFrame=requestAnimationFrame(draw);
@@ -3841,9 +3837,9 @@ function startWaveform(){
     c.stroke();
     let sum=0;for(let i=0;i<buf.length;i++) sum+=Math.pow((buf[i]/128)-1,2);
     const rms=Math.sqrt(sum/buf.length);
-    document.getElementById("micVolBar").style.width=Math.min(100,rms*100*sensitivity)+"%";
-    document.getElementById("peakVal").textContent="RMS: "+(rms*100).toFixed(1);
-    if(calibrating) document.getElementById("calibVolFill").style.width=Math.min(100,rms*100*sensitivity)+"%";
+    const vb=document.getElementById("micVolBar"); if(vb) vb.style.width=Math.min(100,rms*100*sensitivity)+"%";
+    const pv=document.getElementById("peakVal"); if(pv) pv.textContent="RMS: "+(rms*100).toFixed(1);
+    if(calibrating){const cf=document.getElementById("calibVolFill");if(cf) cf.style.width=Math.min(100,rms*100*sensitivity)+"%";}
   }
   draw();
 }
