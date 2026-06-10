@@ -1737,6 +1737,47 @@ input[type=range].vertical.triplet::-moz-range-thumb {
   from { box-shadow: 0 0 6px rgba(57,255,20,0.2); }
   to   { box-shadow: 0 0 18px rgba(57,255,20,0.5); }
 }
+
+/* ── READY / 카운트다운 오버레이 */
+.ready-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px;
+  background: rgba(10,12,26,0.85);
+  border-radius: 12px;
+  z-index: 20; pointer-events: none;
+  opacity: 0; transition: opacity 0.25s;
+}
+.ready-overlay.show { opacity: 1; }
+.ready-text {
+  font-family: "Orbitron", monospace;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 900;
+  color: var(--angel);
+  letter-spacing: 6px;
+  text-shadow: var(--glow-angel);
+  animation: readyPulse 0.5s ease-in-out infinite alternate;
+}
+.ready-count {
+  font-family: "Orbitron", monospace;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 4px;
+  text-shadow: 0 0 20px rgba(255,255,255,0.6);
+}
+@keyframes readyPulse {
+  from { text-shadow: 0 0 10px var(--angel); }
+  to   { text-shadow: 0 0 30px var(--angel), 0 0 60px var(--angel); }
+}
+@keyframes countPop {
+  0%   { transform: scale(1.5); opacity: 0; }
+  30%  { transform: scale(1);   opacity: 1; }
+  80%  { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+.ready-count.pop { animation: countPop 0.9s ease forwards; }
 </style>
 </head>
 <body>
@@ -1893,7 +1934,8 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 <!-- CENTER -->
 <section class="panel-center">
 
-  <div class="beat-icon-card" id="beatIconCard">
+  <div class="beat-icon-card" id="beatIconCard" style="position:relative;">
+    <div class="ready-overlay" id="readyOverlay"><div class="ready-text" id="readyText">READY</div><div class="ready-count" id="readyCount"></div></div>
     <div class="hit-flash" id="hitFlash"></div>
     <!-- 헤더 -->
     <div class="current-beat-header">
@@ -3012,29 +3054,93 @@ function onNoteTick(noteIdx, totalTick){
     "  ["+(currentSubIdx+1)+"/"+PATTERNS[currentPatternKey].beats[currentBeatIdx].length+"]";
 }
 async function toggleMetronome(){
-  // AudioContext 생성 및 resume (크롬 autoplay 정책 대응)
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
   if(audioCtx.state!=="running"){
     try{ await audioCtx.resume(); } catch(e){ console.warn("resume failed",e); }
   }
 
-  isPlaying=!isPlaying;
-  const btn=document.getElementById("startBtn");
+  // STOP 처리
   if(isPlaying){
-    flatNotes=getFlatNotes(currentPatternKey);
-    if(!flatNotes||flatNotes.length===0){isPlaying=false;return;}
-    metroTick=0;globalNoteIdx=0;currentBeatIdx=0;currentSubIdx=0;
-    // currentTime이 0일 수 있으므로 짧게 딜레이
-    nextNoteTime=audioCtx.currentTime+0.05;
-    schedulerLoop();
-    btn.textContent="■ STOP";btn.className="btn-start running";
-    setStatus("active","PLAYING");
-    startSessionTimer();
-  } else {
-    clearTimeout(metroTimer);btn.textContent="▶ START";btn.className="btn-start stopped";
+    isPlaying=false;
+    clearTimeout(metroTimer);
+    const btn=document.getElementById("startBtn");
+    btn.textContent="▶ START";btn.className="btn-start stopped";
     resetBeatDots();setStatus("idle","대기중");
     stopSessionTimer();
+    // 오버레이 숨기기
+    const ov=document.getElementById("readyOverlay");
+    if(ov) ov.classList.remove("show");
+    return;
   }
+
+  // START → 카운트다운 후 시작
+  flatNotes=getFlatNotes(currentPatternKey);
+  if(!flatNotes||flatNotes.length===0) return;
+
+  const btn=document.getElementById("startBtn");
+  btn.textContent="■ STOP";btn.className="btn-start running";
+  btn.disabled=false;
+
+  await startCountdown();
+
+  // 카운트다운 끝나면 실제 시작
+  isPlaying=true;
+  metroTick=0;globalNoteIdx=0;currentBeatIdx=0;currentSubIdx=0;
+  nextNoteTime=audioCtx.currentTime+0.05;
+  schedulerLoop();
+  setStatus("active","PLAYING");
+  startSessionTimer();
+}
+
+// READY 2초 + 4,3,2,1 카운트다운
+function startCountdown(){
+  return new Promise(resolve=>{
+    const ov=document.getElementById("readyOverlay");
+    const txt=document.getElementById("readyText");
+    const cnt=document.getElementById("readyCount");
+    if(!ov){ resolve(); return; }
+
+    // READY 표시
+    txt.textContent="READY";
+    cnt.textContent="";
+    cnt.className="ready-count";
+    ov.classList.add("show");
+
+    const beatMs = 60000 / bpm;  // 현재 BPM 기준 1박자 시간
+    let count = 4;
+
+    // 2초 후 카운트다운 시작
+    setTimeout(()=>{
+      txt.textContent="";
+      function tick(){
+        if(count <= 0){
+          ov.classList.remove("show");
+          cnt.className="ready-count";
+          resolve();
+          return;
+        }
+        cnt.textContent = count;
+        cnt.className="ready-count";
+        void cnt.offsetWidth; // reflow
+        cnt.classList.add("pop");
+        // 클릭 사운드 (예비박자)
+        if(audioCtx){
+          const ctx=audioCtx;
+          const osc=ctx.createOscillator();
+          const gain=ctx.createGain();
+          osc.connect(gain);gain.connect(ctx.destination);
+          osc.frequency.value = count===4 ? 1000 : 800;
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.08);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime+0.08);
+        }
+        count--;
+        setTimeout(tick, beatMs);
+      }
+      tick();
+    }, 2000);
+  });
 }
 function flashBeatDot(b){
   document.querySelectorAll(".beat-dot").forEach((d,i)=>{
