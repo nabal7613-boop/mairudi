@@ -1852,8 +1852,8 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     </div>
     <div class="sens-row">
       <span class="sens-lbl">임계값</span>
-      <input type="range" id="threshSlider" min="1" max="50" value="8" style="flex:1;min-width:0;" oninput="calibratedThreshold=parseInt(this.value);document.getElementById('threshVal').textContent=this.value;updateRangeStyle(this)">
-      <span class="sens-val" id="threshVal">8</span>
+      <input type="range" id="threshSlider" min="1" max="50" value="5" style="flex:1;min-width:0;" oninput="calibratedThreshold=parseInt(this.value);document.getElementById('threshVal').textContent=this.value;updateRangeStyle(this)">
+      <span class="sens-val" id="threshVal">5</span>
     </div>
   </div>
 
@@ -3800,7 +3800,7 @@ function selectPattern(key, btn){
 //  MIC ENGINE
 // ============================
 let micStream=null,micActive=false,analyser=null,animFrame=null;
-let sensitivity=8,calibratedThreshold=8,lastHitTime=0;
+let sensitivity=8,calibratedThreshold=5,lastHitTime=0;
 
 async function toggleMic(){micActive?stopMic():await startMic();}
 async function startMic(){
