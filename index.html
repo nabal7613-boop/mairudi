@@ -3805,17 +3805,33 @@ let sensitivity=8,calibratedThreshold=5,lastHitTime=0;
 async function toggleMic(){micActive?stopMic():await startMic();}
 async function startMic(){
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
-    micStream=stream;const ctx=getAudioCtx();
-    if(ctx.state!=='running') await ctx.resume();
-    const src=ctx.createMediaStreamSource(stream);
-    const hpf=ctx.createBiquadFilter();hpf.type="highpass";hpf.frequency.value=200;hpf.Q.value=0.5;
-    analyser=ctx.createAnalyser();analyser.fftSize=512;analyser.smoothingTimeConstant=0.1;
-    src.connect(hpf);hpf.connect(analyser);
-    micActive=true;
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      }
+    });
+    micStream = stream;
+
+    // iOS: 별도 AudioContext 생성, resume 필수
+    const micCtx = new (window.AudioContext || window.webkitAudioContext)();
+    await micCtx.resume();
+
+    const src = micCtx.createMediaStreamSource(stream);
+    analyser = micCtx.createAnalyser();
+    analyser.fftSize = 512;              // iOS: 작을수록 안정적
+    analyser.smoothingTimeConstant = 0;  // 스무딩 없애야 빠른 타격 감지
+
+    src.connect(analyser);
+    micActive = true;
     setStatus("listening","마이크 감지중");
     startWaveform(); detectHits();
-  }catch(e){setStatus("error","마이크 오류");console.error("마이크 오류:",e);}
+  } catch(e) {
+    setStatus("error","마이크 오류");
+    console.error("마이크 오류:", e.name, e.message);
+    alert("마이크 오류: " + e.name + " - " + e.message);
+  }
 }
 function stopMic(){
   if(micStream) micStream.getTracks().forEach(t=>t.stop());
@@ -3846,16 +3862,26 @@ function startWaveform(){
 }
 function detectHits(){
   if(!analyser) return;
-  const buf=new Float32Array(analyser.fftSize);let prevRms=0;
+  // iOS Safari 호환: getByteTimeDomainData 사용
+  const buf = new Uint8Array(analyser.fftSize);
+  let prevRms = 0;
   function check(){
     if(!micActive) return;
-    setTimeout(check,10);
-    analyser.getFloatTimeDomainData(buf);
-    let sum=0;for(let s of buf) sum+=s*s;
-    const rms=Math.sqrt(sum/buf.length)*100;
-    const now=performance.now();
-    if(rms>calibratedThreshold&&rms>prevRms*1.5&&(now-lastHitTime)>20){lastHitTime=now;onHitDetected(rms,now);}
-    prevRms=rms;
+    setTimeout(check, 10);
+    analyser.getByteTimeDomainData(buf);
+    // 0~255 → -1~1 변환 후 RMS 계산
+    let sum = 0;
+    for(let i = 0; i < buf.length; i++){
+      const s = (buf[i] - 128) / 128;
+      sum += s * s;
+    }
+    const rms = Math.sqrt(sum / buf.length) * 100;
+    const now = performance.now();
+    if(rms > calibratedThreshold && rms > prevRms * 1.3 && (now - lastHitTime) > 30){
+      lastHitTime = now;
+      onHitDetected(rms, now);
+    }
+    prevRms = rms;
   }
   check();
 }
