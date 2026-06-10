@@ -3813,7 +3813,7 @@ async function startMic(){
     src.connect(hpf);hpf.connect(analyser);
     micActive=true;
     setStatus("listening","마이크 감지중");
-    detectHits();
+    startWaveform(); detectHits();
   }catch(e){setStatus("error","마이크 오류");console.error("마이크 오류:",e);}
 }
 function stopMic(){
@@ -3866,18 +3866,26 @@ let score=0,combo=0,maxCombo=0,counts={perfect:0,good:0,miss:0},totalHits=0;
 let lastHitHand = 'R';  // 타이밍 레인용 마지막 손 추적
 function _coreOnHit(rms,hitTime){
   spawnParticles("default");
-  const diff=hitTime-lastTickTime;
-  const clamped=Math.max(-100,Math.min(100,diff));
-  // 타이밍 레인: 항상 표시 (isPlaying 여부 무관)
   const tlHand = lastHitHand || 'R';
+
+  // 타이밍 레인: 메트로놈 켜져 있으면 실제 ms, 꺼져 있으면 0ms(중앙) 표시
+  const diff = isPlaying ? (hitTime - lastTickTime) : 0;
+  const clamped = Math.max(-100, Math.min(100, diff));
   tlAddHit(tlHand, clamped);
-  const el=document.getElementById('tlLastMs');
+  const el = document.getElementById('tlLastMs');
   if(el){
-    const col=Math.abs(clamped)<=20?'var(--hit-ok)':Math.abs(clamped)<=50?'var(--hit-good)':'var(--hit-miss)';
-    el.textContent=(clamped>0?'+':'')+Math.round(clamped)+'ms';
-    el.style.color=col;
+    if(isPlaying){
+      const col = Math.abs(clamped)<=20?'var(--hit-ok)':Math.abs(clamped)<=50?'var(--hit-good)':'var(--hit-miss)';
+      el.textContent = (clamped>0?'+':'') + Math.round(clamped) + 'ms';
+      el.style.color = col;
+    } else {
+      el.textContent = '●';
+      el.style.color = 'var(--angel)';
+    }
   }
+
   if(!isPlaying) return;
+
   let jdg="";
   if(Math.abs(clamped)<=20){jdg="PERFECT";counts.perfect++;score+=300+combo*2;combo++;}
   else if(Math.abs(clamped)<=50){jdg="GOOD";counts.good++;score+=100+combo;combo++;}
