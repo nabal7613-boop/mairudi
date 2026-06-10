@@ -1691,7 +1691,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 }
 .tl-hit-v.perfect { background: var(--hit-ok);   box-shadow: 0 0 8px var(--hit-ok); }
 .tl-hit-v.good    { background: var(--hit-good);  box-shadow: 0 0 6px var(--hit-good); }
-.tl-hit-v.miss    { background: var(--hit-miss);  opacity: 0.4; }
+.tl-hit-v.miss    { background: var(--hit-miss);  opacity: 0.8; box-shadow: 0 0 4px var(--hit-miss); }
 
 /* ── SWAP 버튼 */
 .btn-swap {
@@ -1852,8 +1852,8 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     </div>
     <div class="sens-row">
       <span class="sens-lbl">임계값</span>
-      <input type="range" id="threshSlider" min="1" max="50" value="15" style="flex:1;min-width:0;" oninput="calibratedThreshold=parseInt(this.value);document.getElementById('threshVal').textContent=this.value;updateRangeStyle(this)">
-      <span class="sens-val" id="threshVal">15</span>
+      <input type="range" id="threshSlider" min="1" max="50" value="8" style="flex:1;min-width:0;" oninput="calibratedThreshold=parseInt(this.value);document.getElementById('threshVal').textContent=this.value;updateRangeStyle(this)">
+      <span class="sens-val" id="threshVal">8</span>
     </div>
   </div>
 
@@ -3800,7 +3800,7 @@ function selectPattern(key, btn){
 //  MIC ENGINE
 // ============================
 let micStream=null,micActive=false,analyser=null,animFrame=null;
-let sensitivity=8,calibratedThreshold=15,lastHitTime=0;
+let sensitivity=8,calibratedThreshold=8,lastHitTime=0;
 
 async function toggleMic(){micActive?stopMic():await startMic();}
 async function startMic(){
@@ -3888,8 +3888,8 @@ function _coreOnHit(rms,hitTime){
   if(!isPlaying) return;
 
   let jdg="";
-  if(Math.abs(clamped)<=20){jdg="PERFECT";counts.perfect++;score+=300+combo*2;combo++;}
-  else if(Math.abs(clamped)<=50){jdg="GOOD";counts.good++;score+=100+combo;combo++;}
+  if(Math.abs(clamped)<=30){jdg="PERFECT";counts.perfect++;score+=300+combo*2;combo++;}
+  else if(Math.abs(clamped)<=80){jdg="GOOD";counts.good++;score+=100+combo;combo++;}
   else{jdg="MISS";counts.miss++;combo=0;}
   if(combo>maxCombo) maxCombo=combo;
   totalHits++;
@@ -3943,7 +3943,7 @@ function tlRender(hand) {
   arr.forEach(({ ms, t }) => {
     const bar = document.createElement('div');
     bar.className = 'tl-hit-v ' +
-      (Math.abs(ms) <= 20 ? 'perfect' : Math.abs(ms) <= 50 ? 'good' : 'miss');
+      (Math.abs(ms) <= 30 ? 'perfect' : Math.abs(ms) <= 80 ? 'good' : 'miss');
 
     // 세로 위치: 중앙(50%) = 0ms, 위 = Early, 아래 = Late
     const pct = 50 + (ms / TL_RANGE_MS) * 50;
