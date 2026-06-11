@@ -3055,8 +3055,14 @@ function onNoteTick(noteIdx, totalTick){
 }
 async function toggleMetronome(){
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state!=="running"){
-    try{ await audioCtx.resume(); } catch(e){ console.warn("resume failed",e); }
+  if(audioCtx.state !== 'running'){
+    try{ await audioCtx.resume(); } catch(e){ console.warn('resume failed',e); }
+    if(audioCtx.state !== 'running') await new Promise(r=>setTimeout(r,50));
+  }
+  if(audioCtx.state !== 'running'){
+    try{ audioCtx.close(); } catch(e){}
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    await audioCtx.resume().catch(()=>{});
   }
 
   // STOP 처리
@@ -4583,8 +4589,24 @@ function mSchedulerLoop(){
 
 // ── 메트로놈 START/STOP
 async function toggleMetroMode(){
+  // AudioContext 생성 및 완전 활성화 보장
   if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state !== 'running') await audioCtx.resume();
+
+  // suspended 상태면 resume 후 실제로 running이 될 때까지 대기
+  if(audioCtx.state !== 'running'){
+    try{ await audioCtx.resume(); } catch(e){ console.warn('audioCtx resume failed', e); }
+    // resume() Promise 완료 후에도 state가 바뀌는 데 한 프레임 걸릴 수 있음
+    if(audioCtx.state !== 'running'){
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+  }
+
+  // 그래도 running이 아니면 새 컨텍스트로 교체 (iOS 엣지케이스)
+  if(audioCtx.state !== 'running'){
+    try{ audioCtx.close(); } catch(e){}
+    audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+    await audioCtx.resume().catch(()=>{});
+  }
 
   mIsPlaying = !mIsPlaying;
   const btn = document.getElementById('mStartBtn');
@@ -4593,7 +4615,9 @@ async function toggleMetroMode(){
 
   if(mIsPlaying){
     mTick=0; mBarCount=0;
-    mNextTime = audioCtx.currentTime + 0.05;
+    // currentTime이 0이면 짧게 기다린 후 시작 (iOS 안전장치)
+    const startDelay = audioCtx.currentTime > 0 ? 0.05 : 0.1;
+    mNextTime = audioCtx.currentTime + startDelay;
     mSchedulerLoop();
     if(btn){ btn.className='metro-start-btn running'; }
     if(icon) icon.textContent='■';
