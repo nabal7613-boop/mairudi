@@ -443,10 +443,31 @@ canvas#waveCanvas{display:block;width:100%;height:72px;background:linear-gradien
 .btn-modal:hover{transform:translateY(-1px);}
 
 /* PARTICLES */
-.particle-container{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden;}
-.particle{position:absolute;width:4px;height:4px;border-radius:50%;animation:pfly 0.6s ease-out forwards;pointer-events:none;}
-@keyframes pfly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
-.pulse-ring{position:fixed;border-radius:50%;pointer-events:none;z-index:49;animation:pexpand 0.5s ease-out forwards;border:2px solid;}
+/* 파티클 제거 → 아이콘 플래시로 대체 */
+.icon-flash-perfect .note-icon-circle{animation:iconFlashP 0.35s ease-out forwards!important;}
+.icon-flash-good    .note-icon-circle{animation:iconFlashG 0.35s ease-out forwards!important;}
+.icon-flash-miss    .note-icon-circle{animation:iconFlashM 0.3s  ease-out forwards!important;}
+.icon-flash-default .note-icon-circle{animation:iconFlashD 0.25s ease-out forwards!important;}
+@keyframes iconFlashP{
+  0%  {transform:scale(1.0);box-shadow:0 0 0px #39FF14;}
+  40% {transform:scale(1.45);box-shadow:0 0 32px #39FF14,0 0 60px rgba(57,255,20,0.5);}
+  100%{transform:scale(1.18);box-shadow:0 0 10px rgba(57,255,20,0.3);}
+}
+@keyframes iconFlashG{
+  0%  {transform:scale(1.0);box-shadow:0 0 0px #FFE000;}
+  40% {transform:scale(1.38);box-shadow:0 0 28px #FFE000,0 0 50px rgba(255,224,0,0.4);}
+  100%{transform:scale(1.18);box-shadow:0 0 8px rgba(255,224,0,0.2);}
+}
+@keyframes iconFlashM{
+  0%  {transform:scale(1.18);}
+  30% {transform:scale(0.88);box-shadow:0 0 18px rgba(255,42,109,0.6);}
+  100%{transform:scale(1.18);box-shadow:none;}
+}
+@keyframes iconFlashD{
+  0%  {transform:scale(1.18);}
+  50% {transform:scale(1.32);box-shadow:0 0 20px rgba(0,229,255,0.5);}
+  100%{transform:scale(1.18);}
+}
 
 
 /* ══ 4단계: 듀얼 AI 코치 ══ */
@@ -820,7 +841,6 @@ canvas#waveCanvas{display:block;width:100%;height:72px;background:linear-gradien
 .btn-ppt-close:hover { border-color: rgba(255,255,255,0.2); color: var(--text-primary); }
 
 @keyframes fadeInUp{0%{opacity:0;transform:translateX(-50%) translateY(10px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
-@keyframes pexpand{0%{width:20px;height:20px;opacity:0.8;margin:-10px 0 0 -10px}100%{width:120px;height:120px;opacity:0;margin:-60px 0 0 -60px}}
 ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg-base);}::-webkit-scrollbar-thumb{background:var(--text-dim);border-radius:2px;}
 
 /* ── 통계 탭 ── */
@@ -1782,14 +1802,13 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 </head>
 <body>
 
-<div class="particle-container" id="particleContainer"></div>
 
 <header>
   <div class="logo">
     <span class="logo-main">MAI RUDI</span>
     <div style="display:flex;flex-direction:column;gap:1px;">
       <span class="logo-sub">AI Rudiment Trainer · v0.1</span>
-      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0602</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0614</span>
     </div>
   </div>
   <nav class="tab-nav">
@@ -4200,26 +4219,24 @@ function markNoteHit(type){
 //  PARTICLES
 // ============================
 function spawnParticles(type, subIdx){
-  const c=document.getElementById("particleContainer");
-  const cols={perfect:"#39FF14",good:"#FFE000",miss:"#FF2A6D",default:"#00E5FF"};
-  const col=cols[type]||cols.default;
-  // subIdx를 명시적으로 받아서 사용. 없으면 lastParticleSubIdx 폴백
-  const targetIdx = (subIdx !== undefined) ? subIdx : lastParticleSubIdx;
-  const iconEl = document.getElementById("icon_"+targetIdx);
-  const fallback = document.getElementById("beatIconCard");
-  const el = iconEl || fallback;
-  if(!el) return;
-  const rect=el.getBoundingClientRect();
-  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-  for(let i=0;i<10;i++){
-    const p=document.createElement("div");p.className="particle";
-    const angle=(i/10)*Math.PI*2,dist=30+Math.random()*50;
-    p.style.cssText="left:"+cx+"px;top:"+cy+"px;background:"+col+";box-shadow:0 0 6px "+col+";--dx:"+Math.cos(angle)*dist+"px;--dy:"+Math.sin(angle)*dist+"px";
-    c.appendChild(p);setTimeout(()=>p.remove(),600);
+  // 파티클 대신 현재 노트 아이콘 자체를 플래시
+  // subIdx가 없으면 현재 강조 중인 모든 current 아이콘에 적용
+  const cls = 'icon-flash-' + (type||'default');
+  let targets = [];
+  if(subIdx !== undefined){
+    const el = document.getElementById('icon_'+subIdx);
+    if(el) targets.push(el);
   }
-  const ring=document.createElement("div");ring.className="pulse-ring";
-  ring.style.cssText="left:"+cx+"px;top:"+cy+"px;border-color:"+col;
-  c.appendChild(ring);setTimeout(()=>ring.remove(),500);
+  // fallback: .note-icon.current 전체
+  if(!targets.length){
+    targets = Array.from(document.querySelectorAll('.note-icon.current'));
+  }
+  targets.forEach(el=>{
+    el.classList.remove('icon-flash-perfect','icon-flash-good','icon-flash-miss','icon-flash-default');
+    void el.offsetWidth; // reflow → animation 재시작
+    el.classList.add(cls);
+    setTimeout(()=>el.classList.remove(cls), 400);
+  });
 }
 
 // ============================
