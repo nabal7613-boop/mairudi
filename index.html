@@ -1789,7 +1789,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     <span class="logo-main">MAI RUDI</span>
     <div style="display:flex;flex-direction:column;gap:1px;">
       <span class="logo-sub">AI Rudiment Trainer · v0.1</span>
-      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0532</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0553</span>
     </div>
   </div>
   <nav class="tab-nav">
@@ -3011,7 +3011,10 @@ function schedulerLoop(){
       if(!isPlaying) return;
       lastTickTime=performance.now();
       // 타이밍 레인용: 현재 노트 손 추적
-      if(flatNotes[capturedIdx]) lastHitHand = flatNotes[capturedIdx].h;
+      if(flatNotes[capturedIdx]){
+        lastHitHand = flatNotes[capturedIdx].h;
+        lastParticleSubIdx = flatNotes[capturedIdx].subIdx; // 파티클 위치 캡처
+      }
       onNoteTick(capturedIdx, capturedTick);
     },delay);
     nextNoteTime+=interval;
@@ -4004,6 +4007,7 @@ function detectHits(){
 // ============================
 let score=0,combo=0,maxCombo=0,counts={perfect:0,good:0,miss:0},totalHits=0;
 let lastHitHand = 'R';  // 타이밍 레인용 마지막 손 추적
+let lastParticleSubIdx = 0; // 파티클 위치용 — 노트 틱 시점에 캡처
 function _coreOnHit(rms,hitTime){
   spawnParticles("default");
   const tlHand = lastHitHand || 'R';
@@ -4199,8 +4203,8 @@ function spawnParticles(type){
   const c=document.getElementById("particleContainer");
   const cols={perfect:"#39FF14",good:"#FFE000",miss:"#FF2A6D",default:"#00E5FF"};
   const col=cols[type]||cols.default;
-  // 현재 타격 노트 아이콘 위치에서 터지도록
-  const iconEl = document.getElementById("icon_"+currentSubIdx);
+  // 노트 틱 시점에 캡처한 subIdx 사용 (currentSubIdx는 이미 다음 노트로 넘어갔을 수 있음)
+  const iconEl = document.getElementById("icon_"+lastParticleSubIdx);
   const fallback = document.getElementById("beatIconCard");
   const el = iconEl || fallback;
   if(!el) return;
