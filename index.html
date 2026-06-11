@@ -1789,7 +1789,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     <span class="logo-main">MAI RUDI</span>
     <div style="display:flex;flex-direction:column;gap:1px;">
       <span class="logo-sub">AI Rudiment Trainer · v0.1</span>
-      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0453</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0457</span>
     </div>
   </div>
   <nav class="tab-nav">
@@ -1854,7 +1854,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
         </svg>
       </button>
     </div>
-    <button class="btn-start stopped" id="startBtn" ontouchstart="iosUnlockAudio()" onclick="toggleMetronome()">▶ START</button>
+    <button class="btn-start stopped" id="startBtn" ontouchstart="iosTouchStart(event,'training')" onclick="toggleMetronome()">▶ START</button>
     <div class="beat-indicator" id="beatIndicator"></div>
     <button class="btn-mic-main" id="micMainBtn" onclick="toggleMicMain()">🎤 MIC</button>
   </div>
@@ -2270,7 +2270,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 
     <!-- 오른쪽: START + 비트닷 + 박자표 -->
     <div class="metro-start-col">
-      <button class="metro-start-btn stopped" id="mStartBtn" ontouchstart="iosUnlockAudio()" onclick="toggleMetroMode()">
+      <button class="metro-start-btn stopped" id="mStartBtn" ontouchstart="iosTouchStart(event,'metro')" onclick="toggleMetroMode()">
         <span class="start-icon" id="mStartIcon">▶</span>
         <span id="mStartLabel">START</span>
       </button>
@@ -6245,25 +6245,50 @@ function init(){
 init();
 
 // ─────────────────────────────────────────────────────────────
-//  iosUnlockAudio: START 버튼 ontouchstart 전용
-//  iOS Safari는 touchstart 핸들러 안에서 AudioContext를 생성+resume+
-//  무음버퍼재생까지 완료해야 click 시점에 'running' 상태가 보장됨.
-//  Promise .then() 도 gesture context 안이므로 허용됨.
+//  iosTouchStart: iOS Safari START 버튼 전용 터치 핸들러
+//
+//  핵심 원리:
+//  iOS Safari는 AudioContext.resume() 이 touchstart 핸들러의
+//  동기 콜스택 안에서 호출될 때만 gesture로 인정함.
+//  Promise.then() 은 microtask로 실행되어 gesture context 유지됨.
+//  그러나 onclick(= click 이벤트)은 별도 gesture라서
+//  이미 resume()이 pending 중이어도 새 gesture로 재요청이 필요함.
+//
+//  해결: touchstart에서 unlock + toggle 모두 처리,
+//        preventDefault()로 후속 click 이벤트를 차단.
 // ─────────────────────────────────────────────────────────────
-function iosUnlockAudio(){
-  if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state === 'running') return;
+function iosTouchStart(e, mode){
+  e.preventDefault(); // click 이벤트 발생 차단 (중복 실행 방지)
 
-  audioCtx.resume().then(()=>{
-    // 무음 버퍼 즉시 재생 → iOS 오디오 세션 완전 활성화
-    try{
-      const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-      const src = audioCtx.createBufferSource();
-      src.buffer = buf;
-      src.connect(audioCtx.destination);
-      src.start(0);
-    }catch(e){}
-  }).catch(()=>{});
+  // AudioContext 생성 (이미 있으면 재사용)
+  if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+
+  const doToggle = ()=>{
+    if(mode === 'metro')    toggleMetroMode();
+    if(mode === 'training') toggleMetronome();
+  };
+
+  if(audioCtx.state === 'running'){
+    // 이미 활성화됨 → 바로 toggle
+    doToggle();
+  } else {
+    // touchstart gesture context 안에서 resume() 호출
+    audioCtx.resume().then(()=>{
+      // 무음 버퍼로 오디오 세션 완전 활성화
+      try{
+        const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioCtx.destination);
+        src.start(0);
+      }catch(err){}
+      // 활성화 직후 toggle 실행
+      doToggle();
+    }).catch(()=>{
+      // resume 실패해도 toggle 시도
+      doToggle();
+    });
+  }
 }
 </script>
 </body>
