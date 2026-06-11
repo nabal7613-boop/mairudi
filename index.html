@@ -3,161 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iOS Audio Debug</title>
+<title>iOS Audio Debug 2</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #0a0a0f; color: #e8e8ff; font-family: monospace; padding: 20px; font-size: 14px; }
 h2 { color: #00E5FF; margin-bottom: 16px; font-size: 16px; }
 button {
-  display: block; width: 100%; padding: 18px;
-  margin: 8px 0; font-size: 16px; font-weight: bold;
+  display: block; width: 100%; padding: 22px;
+  margin: 10px 0; font-size: 17px; font-weight: bold;
   background: #1a1a30; color: #00E5FF;
-  border: 2px solid #00E5FF; border-radius: 10px;
-  cursor: pointer;
+  border: 2px solid #00E5FF; border-radius: 10px; cursor: pointer;
 }
-button.ok  { border-color: #39FF14; color: #39FF14; background: rgba(57,255,20,0.1); }
-button.fail{ border-color: #FF2A6D; color: #FF2A6D; background: rgba(255,42,109,0.1); }
 #log {
-  margin-top: 16px; padding: 12px;
-  background: #000; border: 1px solid #333; border-radius: 8px;
-  min-height: 200px; font-size: 12px; line-height: 2;
-  white-space: pre-wrap; overflow-y: auto; max-height: 400px;
+  margin-top: 16px; padding: 12px; background: #000;
+  border: 1px solid #333; border-radius: 8px;
+  min-height: 160px; font-size: 13px; line-height: 2;
+  white-space: pre-wrap; overflow-y: auto; max-height: 360px;
 }
-.t { color: #606880; }
-.ok { color: #39FF14; }
+.ok   { color: #39FF14; }
 .fail { color: #FF2A6D; }
 .info { color: #FFE000; }
+.t    { color: #606880; }
 </style>
 </head>
 <body>
-<h2>🔊 iOS Safari AudioContext 진단</h2>
+<h2>🔊 iOS touchstart vs click 비교</h2>
 
-<button id="btn1" onclick="test1()">① 새 AudioContext 생성 + state 확인</button>
-<button id="btn2" onclick="test2()">② resume() 호출 후 state 확인</button>
-<button id="btn3" onclick="test3()">③ resume() 후 beep 재생 시도</button>
-<button id="btn4" onclick="test4()">④ currentTime 폴링 후 beep</button>
-<button id="btn5" onclick="test5()">⑤ 완전 처음부터: new→resume→poll→beep</button>
-<button id="btnClear" onclick="clearLog()" style="border-color:#888;color:#888">로그 초기화</button>
+<!-- A: touchstart에서 처리 -->
+<button id="btnA">A: touchstart에서 beep</button>
 
-<div id="log">버튼을 눌러 테스트를 시작하세요.\n</div>
+<!-- B: touchend에서 처리 -->
+<button id="btnB">B: touchend에서 beep</button>
+
+<!-- C: onclick에서 처리 (기존 방식) -->
+<button id="btnC" onclick="handleC()">C: onclick에서 beep</button>
+
+<!-- D: touchstart unlock + onclick beep -->
+<button id="btnD">D: touchstart unlock → onclick beep</button>
+
+<button onclick="document.getElementById('log').innerHTML=''" style="border-color:#555;color:#555;padding:10px">로그 초기화</button>
+
+<div id="log">버튼을 눌러 테스트하세요.\n</div>
 
 <script>
-let ctx = null;
+let ctxA=null, ctxB=null, ctxC=null, ctxD=null;
+let dUnlocked = false;
 
-function ts() {
-  return '<span class="t">[' + new Date().toISOString().slice(11,22) + ']</span> ';
-}
-function log(msg, cls) {
-  const d = document.getElementById('log');
-  d.innerHTML += ts() + '<span class="' + (cls||'') + '">' + msg + '</span>\n';
-  d.scrollTop = d.scrollHeight;
-}
-function clearLog() {
-  document.getElementById('log').innerHTML = '';
-}
+function ts(){ return '<span class="t">['+new Date().toISOString().slice(11,22)+']</span> '; }
+function log(msg,cls){ const d=document.getElementById('log'); d.innerHTML+=ts()+'<span class="'+(cls||'')+'">'+msg+'</span>\n'; d.scrollTop=d.scrollHeight; }
 
-function beep(c, freq) {
-  freq = freq || 880;
-  try {
-    const o = c.createOscillator();
-    const g = c.createGain();
-    o.connect(g); g.connect(c.destination);
-    o.frequency.value = freq;
-    const t = c.currentTime;
+function beep(ctx, freq, label){
+  try{
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = freq||880;
+    const t = ctx.currentTime;
     g.gain.setValueAtTime(0.4, t);
-    g.gain.linearRampToValueAtTime(0.0001, t + 0.3);
-    o.start(t); o.stop(t + 0.35);
-    log('✅ beep scheduled at t=' + t.toFixed(4) + ' freq=' + freq, 'ok');
-    return true;
-  } catch(e) {
-    log('❌ beep error: ' + e.message, 'fail');
-    return false;
-  }
+    g.gain.linearRampToValueAtTime(0.0001, t+0.4);
+    o.start(t); o.stop(t+0.45);
+    log((label||'beep')+' ✅ state='+ctx.state+' t='+t.toFixed(4),'ok');
+  }catch(e){ log((label||'beep')+' ❌ '+e.message,'fail'); }
 }
 
-// ① 생성만
-function test1() {
-  log('--- ① new AudioContext ---', 'info');
-  ctx = new (window.AudioContext || window.webkitAudioContext)();
-  log('state: ' + ctx.state + '  sampleRate: ' + ctx.sampleRate + '  currentTime: ' + ctx.currentTime);
-  if (ctx.state === 'running') log('→ already running!', 'ok');
-  else log('→ suspended (iOS 기본값)', 'info');
-}
+// A: touchstart에서 전부 처리
+document.getElementById('btnA').addEventListener('touchstart', function(e){
+  e.preventDefault();
+  log('--- A: touchstart ---','info');
+  ctxA = new(window.AudioContext||window.webkitAudioContext)();
+  log('created: state='+ctxA.state);
+  ctxA.resume().then(()=>{
+    log('resumed: state='+ctxA.state+' t='+ctxA.currentTime.toFixed(4));
+    beep(ctxA, 880, 'A');
+  });
+}, {passive:false});
 
-// ② resume만
-function test2() {
-  log('--- ② resume() ---', 'info');
-  if (!ctx) { log('ctx 없음, 먼저 ① 실행', 'fail'); return; }
-  log('before: ' + ctx.state);
-  ctx.resume().then(() => {
-    log('after resume: ' + ctx.state + '  currentTime: ' + ctx.currentTime.toFixed(4));
-    if (ctx.state === 'running') log('→ running 됨!', 'ok');
-    else log('→ 여전히 suspended', 'fail');
-  }).catch(e => log('resume error: ' + e.message, 'fail'));
-}
+// B: touchend에서 처리
+document.getElementById('btnB').addEventListener('touchend', function(e){
+  e.preventDefault();
+  log('--- B: touchend ---','info');
+  ctxB = new(window.AudioContext||window.webkitAudioContext)();
+  ctxB.resume().then(()=>{
+    log('resumed: state='+ctxB.state+' t='+ctxB.currentTime.toFixed(4));
+    beep(ctxB, 660, 'B');
+  });
+}, {passive:false});
 
-// ③ resume 후 즉시 beep
-function test3() {
-  log('--- ③ resume + 즉시 beep ---', 'info');
-  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-  log('state: ' + ctx.state + '  currentTime: ' + ctx.currentTime.toFixed(4));
-  ctx.resume().then(() => {
-    log('resumed: ' + ctx.state + '  currentTime: ' + ctx.currentTime.toFixed(4));
-    beep(ctx, 660);
+// C: onclick (기존 방식)
+function handleC(){
+  log('--- C: onclick ---','info');
+  ctxC = new(window.AudioContext||window.webkitAudioContext)();
+  ctxC.resume().then(()=>{
+    log('resumed: state='+ctxC.state+' t='+ctxC.currentTime.toFixed(4));
+    beep(ctxC, 440, 'C');
   });
 }
 
-// ④ currentTime 폴링
-function test4() {
-  log('--- ④ poll until currentTime > 0 ---', 'info');
-  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-  ctx.resume().then(() => {
-    let tries = 0;
-    const poll = () => {
-      tries++;
-      log('poll #' + tries + ' state=' + ctx.state + ' t=' + ctx.currentTime.toFixed(5));
-      if (ctx.currentTime > 0.001) {
-        log('→ currentTime is flowing! tries=' + tries, 'ok');
-        beep(ctx, 880);
-      } else if (tries < 20) {
-        setTimeout(poll, 20);
-      } else {
-        log('→ timeout: currentTime never moved', 'fail');
-      }
-    };
-    poll();
+// D: touchstart로 unlock, onclick으로 beep
+document.getElementById('btnD').addEventListener('touchstart', function(e){
+  log('--- D: touchstart unlock ---','info');
+  if(!ctxD) ctxD = new(window.AudioContext||window.webkitAudioContext)();
+  ctxD.resume().then(()=>{
+    dUnlocked = true;
+    log('D unlocked: state='+ctxD.state,'ok');
   });
-}
-
-// ⑤ 처음부터 전체 플로우
-function test5() {
-  log('--- ⑤ 전체 플로우 (ctx 새로 생성) ---', 'info');
-  if (ctx) { try { ctx.close(); } catch(e){} }
-  ctx = new (window.AudioContext || window.webkitAudioContext)();
-  log('new ctx state: ' + ctx.state);
-  ctx.resume().then(() => {
-    log('after resume: ' + ctx.state + '  t=' + ctx.currentTime.toFixed(5));
-    let tries = 0;
-    const poll = () => {
-      tries++;
-      if (ctx.currentTime > 0.001) {
-        log('currentTime flowing at try #' + tries + ': t=' + ctx.currentTime.toFixed(5), 'ok');
-        beep(ctx, 1200);
-        beep(ctx, 880);
-      } else if (tries < 30) {
-        setTimeout(poll, 20);
-      } else {
-        log('❌ currentTime never moved after 600ms', 'fail');
-        // 그냥 재생 시도라도
-        beep(ctx, 880);
-      }
-    };
-    poll();
-  }).catch(e => {
-    log('resume failed: ' + e.message, 'fail');
-    beep(ctx, 880); // 그냥 시도
-  });
-}
+}, {passive:true});
+document.getElementById('btnD').addEventListener('click', function(){
+  log('--- D: click beep ---','info');
+  if(!ctxD){ log('ctxD null','fail'); return; }
+  log('state='+ctxD.state+' unlocked='+dUnlocked);
+  beep(ctxD, 1100, 'D');
+});
 </script>
 </body>
 </html>
