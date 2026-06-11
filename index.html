@@ -1789,7 +1789,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     <span class="logo-main">MAI RUDI</span>
     <div style="display:flex;flex-direction:column;gap:1px;">
       <span class="logo-sub">AI Rudiment Trainer · v0.1</span>
-      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0433</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0442</span>
     </div>
   </div>
   <nav class="tab-nav">
@@ -3056,19 +3056,13 @@ function onNoteTick(noteIdx, totalTick){
     divName+"  ·  "+( currentBeatIdx+1)+"/"+PATTERNS[currentPatternKey].beats.length+
     "  ["+(currentSubIdx+1)+"/"+PATTERNS[currentPatternKey].beats[currentBeatIdx].length+"]";
 }
-async function toggleMetronome(){
+function toggleMetronome(){
+  // iOS Safari: ontouchstart에서 이미 resume() 호출됨.
+  // async 함수 + await는 iOS gesture context를 잃으므로, STOP은 동기 처리.
+  // START(카운트다운 필요)는 resume().then()으로 이어서 실행.
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state !== 'running'){
-    try{ await audioCtx.resume(); } catch(e){ console.warn('resume failed',e); }
-    if(audioCtx.state !== 'running') await new Promise(r=>setTimeout(r,50));
-  }
-  if(audioCtx.state !== 'running'){
-    try{ audioCtx.close(); } catch(e){}
-    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    await audioCtx.resume().catch(()=>{});
-  }
 
-  // STOP 처리
+  // STOP 처리 (동기 — gesture context 불필요)
   if(isPlaying){
     isPlaying=false;
     clearTimeout(metroTimer);
@@ -3082,7 +3076,7 @@ async function toggleMetronome(){
     return;
   }
 
-  // START → 카운트다운 후 시작
+  // START → audioCtx resume 후 카운트다운
   flatNotes=getFlatNotes(currentPatternKey);
   if(!flatNotes||flatNotes.length===0) return;
 
@@ -3090,15 +3084,22 @@ async function toggleMetronome(){
   btn.textContent="■ STOP";btn.className="btn-start running";
   btn.disabled=false;
 
-  await startCountdown();
+  const doStart = async ()=>{
+    await startCountdown();
+    // 카운트다운 끝나면 실제 시작
+    isPlaying=true;
+    metroTick=0;globalNoteIdx=0;currentBeatIdx=0;currentSubIdx=0;
+    nextNoteTime=audioCtx.currentTime+0.05;
+    schedulerLoop();
+    setStatus("active","PLAYING");
+    startSessionTimer();
+  };
 
-  // 카운트다운 끝나면 실제 시작
-  isPlaying=true;
-  metroTick=0;globalNoteIdx=0;currentBeatIdx=0;currentSubIdx=0;
-  nextNoteTime=audioCtx.currentTime+0.05;
-  schedulerLoop();
-  setStatus("active","PLAYING");
-  startSessionTimer();
+  if(audioCtx.state === 'running'){
+    doStart();
+  } else {
+    audioCtx.resume().then(doStart).catch(e=>{ console.warn('resume failed',e); doStart(); });
+  }
 }
 
 // READY 2초 + 4,3,2,1 카운트다운
@@ -3920,12 +3921,16 @@ let sensitivity=8,calibratedThreshold=5,lastHitTime=0;
 async function toggleMic(){micActive?stopMic():await startMic();}
 async function startMic(){
   try{
+    // iOS Safari: getUserMedia 전에 반드시 audioCtx를 공유 컨텍스트로 활성화
+    // micCtx를 별도로 만들면 iOS 오디오 세션이 분리되어 메트로놈 audioCtx가 suspended 유지됨
+    if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+    // getUserMedia 먼저 (iOS는 이 시점에 오디오 세션 활성화)
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
     micStream = stream;
-    const micCtx = new (window.AudioContext || window.webkitAudioContext)();
-    await micCtx.resume();
-    const src = micCtx.createMediaStreamSource(stream);
-    analyser = micCtx.createAnalyser();
+    // 공유 audioCtx로 resume (getUserMedia 이후 시점이라 iOS도 허용)
+    if(audioCtx.state !== 'running') await audioCtx.resume();
+    const src = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
     analyser.fftSize = 256;
     analyser.smoothingTimeConstant = 0;
     src.connect(analyser);
@@ -4591,46 +4596,36 @@ function mSchedulerLoop(){
 }
 
 // ── 메트로놈 START/STOP
-async function toggleMetroMode(){
-  // AudioContext 생성 및 완전 활성화 보장
+// iOS Safari: async/await는 gesture context를 잃으므로 동기 함수 + resume().then() 방식 사용
+function toggleMetroMode(){
   if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
 
-  // suspended 상태면 resume 후 실제로 running이 될 때까지 대기
-  if(audioCtx.state !== 'running'){
-    try{ await audioCtx.resume(); } catch(e){ console.warn('audioCtx resume failed', e); }
-    // resume() Promise 완료 후에도 state가 바뀌는 데 한 프레임 걸릴 수 있음
-    if(audioCtx.state !== 'running'){
-      await new Promise(resolve => setTimeout(resolve, 50));
+  const run = ()=>{
+    mIsPlaying = !mIsPlaying;
+    const btn  = document.getElementById('mStartBtn');
+    const icon = document.getElementById('mStartIcon');
+    const lbl  = document.getElementById('mStartLabel');
+
+    if(mIsPlaying){
+      mTick=0; mBarCount=0;
+      mNextTime = audioCtx.currentTime + 0.05;
+      mSchedulerLoop();
+      if(btn)  btn.className='metro-start-btn running';
+      if(icon) icon.textContent='■';
+      if(lbl)  lbl.textContent='STOP';
+    } else {
+      clearTimeout(mTimer);
+      if(btn)  btn.className='metro-start-btn stopped';
+      if(icon) icon.textContent='▶';
+      if(lbl)  lbl.textContent='START';
+      document.querySelectorAll('.metro-beat-dot').forEach(d=>d.classList.remove('beat-on','beat-accent'));
     }
-  }
+  };
 
-  // 그래도 running이 아니면 새 컨텍스트로 교체 (iOS 엣지케이스)
-  if(audioCtx.state !== 'running'){
-    try{ audioCtx.close(); } catch(e){}
-    audioCtx = new(window.AudioContext||window.webkitAudioContext)();
-    await audioCtx.resume().catch(()=>{});
-  }
-
-  mIsPlaying = !mIsPlaying;
-  const btn = document.getElementById('mStartBtn');
-  const icon = document.getElementById('mStartIcon');
-  const lbl = document.getElementById('mStartLabel');
-
-  if(mIsPlaying){
-    mTick=0; mBarCount=0;
-    // currentTime이 0이면 짧게 기다린 후 시작 (iOS 안전장치)
-    const startDelay = audioCtx.currentTime > 0 ? 0.05 : 0.1;
-    mNextTime = audioCtx.currentTime + startDelay;
-    mSchedulerLoop();
-    if(btn){ btn.className='metro-start-btn running'; }
-    if(icon) icon.textContent='■';
-    if(lbl) lbl.textContent='STOP';
+  if(audioCtx.state === 'running'){
+    run();
   } else {
-    clearTimeout(mTimer);
-    if(btn){ btn.className='metro-start-btn stopped'; }
-    if(icon) icon.textContent='▶';
-    if(lbl) lbl.textContent='START';
-    document.querySelectorAll('.metro-beat-dot').forEach(d=>d.classList.remove('beat-on','beat-accent'));
+    audioCtx.resume().then(run).catch(e=>{ console.warn('resume failed', e); run(); });
   }
 }
 
