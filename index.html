@@ -1789,7 +1789,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
     <span class="logo-main">MAI RUDI</span>
     <div style="display:flex;flex-direction:column;gap:1px;">
       <span class="logo-sub">AI Rudiment Trainer · v0.1</span>
-      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0457</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0501</span>
     </div>
   </div>
   <nav class="tab-nav">
@@ -1854,7 +1854,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
         </svg>
       </button>
     </div>
-    <button class="btn-start stopped" id="startBtn" ontouchstart="iosTouchStart(event,'training')" onclick="toggleMetronome()">▶ START</button>
+    <button class="btn-start stopped" id="startBtn" onclick="toggleMetronome()">▶ START</button>
     <div class="beat-indicator" id="beatIndicator"></div>
     <button class="btn-mic-main" id="micMainBtn" onclick="toggleMicMain()">🎤 MIC</button>
   </div>
@@ -2270,7 +2270,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 
     <!-- 오른쪽: START + 비트닷 + 박자표 -->
     <div class="metro-start-col">
-      <button class="metro-start-btn stopped" id="mStartBtn" ontouchstart="iosTouchStart(event,'metro')" onclick="toggleMetroMode()">
+      <button class="metro-start-btn stopped" id="mStartBtn" onclick="toggleMetroMode()">
         <span class="start-icon" id="mStartIcon">▶</span>
         <span id="mStartLabel">START</span>
       </button>
@@ -3057,12 +3057,7 @@ function onNoteTick(noteIdx, totalTick){
     "  ["+(currentSubIdx+1)+"/"+PATTERNS[currentPatternKey].beats[currentBeatIdx].length+"]";
 }
 function toggleMetronome(){
-  // iOS Safari: ontouchstart에서 이미 resume() 호출됨.
-  // async 함수 + await는 iOS gesture context를 잃으므로, STOP은 동기 처리.
-  // START(카운트다운 필요)는 resume().then()으로 이어서 실행.
-  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-
-  // STOP 처리 (동기 — gesture context 불필요)
+  // STOP
   if(isPlaying){
     isPlaying=false;
     clearTimeout(metroTimer);
@@ -3070,13 +3065,12 @@ function toggleMetronome(){
     btn.textContent="▶ START";btn.className="btn-start stopped";
     resetBeatDots();setStatus("idle","대기중");
     stopSessionTimer();
-    // 오버레이 숨기기
     const ov=document.getElementById("readyOverlay");
     if(ov) ov.classList.remove("show");
     return;
   }
 
-  // START → audioCtx resume 후 카운트다운
+  // START
   flatNotes=getFlatNotes(currentPatternKey);
   if(!flatNotes||flatNotes.length===0) return;
 
@@ -3084,22 +3078,34 @@ function toggleMetronome(){
   btn.textContent="■ STOP";btn.className="btn-start running";
   btn.disabled=false;
 
-  const doStart = async ()=>{
-    await startCountdown();
-    // 카운트다운 끝나면 실제 시작
-    isPlaying=true;
-    metroTick=0;globalNoteIdx=0;currentBeatIdx=0;currentSubIdx=0;
-    nextNoteTime=audioCtx.currentTime + (audioCtx.currentTime < 0.01 ? 0.15 : 0.05);
-    schedulerLoop();
-    setStatus("active","PLAYING");
-    startSessionTimer();
+  if(!audioCtx || audioCtx.state==='closed'){
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  }
+
+  const waitAndStart = ()=>{
+    if(!btn || btn.className.indexOf('running')===-1) return; // 중간 STOP
+    if(audioCtx.state !== 'running'){
+      audioCtx.resume().catch(()=>{});
+      setTimeout(waitAndStart, 30);
+      return;
+    }
+    if(audioCtx.currentTime < 0.001){
+      setTimeout(waitAndStart, 20);
+      return;
+    }
+    // AudioContext 정상 동작 → 카운트다운 후 시작
+    (async ()=>{
+      await startCountdown();
+      isPlaying=true;
+      metroTick=0;globalNoteIdx=0;currentBeatIdx=0;currentSubIdx=0;
+      nextNoteTime=audioCtx.currentTime+0.05;
+      schedulerLoop();
+      setStatus("active","PLAYING");
+      startSessionTimer();
+    })();
   };
 
-  if(audioCtx.state === 'running'){
-    doStart();
-  } else {
-    audioCtx.resume().then(doStart).catch(e=>{ console.warn('resume failed',e); doStart(); });
-  }
+  audioCtx.resume().then(waitAndStart).catch(waitAndStart);
 }
 
 // READY 2초 + 4,3,2,1 카운트다운
@@ -4596,38 +4602,54 @@ function mSchedulerLoop(){
 }
 
 // ── 메트로놈 START/STOP
-// iOS Safari: async/await는 gesture context를 잃으므로 동기 함수 + resume().then() 방식 사용
 function toggleMetroMode(){
-  if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+  const btn  = document.getElementById('mStartBtn');
+  const icon = document.getElementById('mStartIcon');
+  const lbl  = document.getElementById('mStartLabel');
 
-  const run = ()=>{
-    mIsPlaying = !mIsPlaying;
-    const btn  = document.getElementById('mStartBtn');
-    const icon = document.getElementById('mStartIcon');
-    const lbl  = document.getElementById('mStartLabel');
+  // STOP
+  if(mIsPlaying){
+    mIsPlaying = false;
+    clearTimeout(mTimer);
+    if(btn)  btn.className='metro-start-btn stopped';
+    if(icon) icon.textContent='▶';
+    if(lbl)  lbl.textContent='START';
+    document.querySelectorAll('.metro-beat-dot').forEach(d=>d.classList.remove('beat-on','beat-accent'));
+    return;
+  }
 
-    if(mIsPlaying){
-      mTick=0; mBarCount=0;
-      // iOS: resume 직후 currentTime이 0일 수 있으므로 최소 0.1 보장
-      mNextTime = audioCtx.currentTime + (audioCtx.currentTime < 0.01 ? 0.15 : 0.05);
-      mSchedulerLoop();
-      if(btn)  btn.className='metro-start-btn running';
-      if(icon) icon.textContent='■';
-      if(lbl)  lbl.textContent='STOP';
-    } else {
-      clearTimeout(mTimer);
-      if(btn)  btn.className='metro-start-btn stopped';
-      if(icon) icon.textContent='▶';
-      if(lbl)  lbl.textContent='START';
-      document.querySelectorAll('.metro-beat-dot').forEach(d=>d.classList.remove('beat-on','beat-accent'));
+  // START
+  mIsPlaying = true;
+  if(btn)  btn.className='metro-start-btn running';
+  if(icon) icon.textContent='■';
+  if(lbl)  lbl.textContent='STOP';
+  mTick=0; mBarCount=0;
+
+  // AudioContext 생성/재활용
+  if(!audioCtx || audioCtx.state === 'closed'){
+    audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+  }
+
+  // currentTime이 실제로 흐를 때까지 기다린 뒤 스케줄링 시작
+  // iOS Safari: resume() 후 currentTime이 0에서 움직이는 데 수십ms 걸림
+  const waitAndStart = ()=>{
+    if(!mIsPlaying) return; // 중간에 STOP 눌렸으면 취소
+    if(audioCtx.state !== 'running'){
+      audioCtx.resume().catch(()=>{});
+      setTimeout(waitAndStart, 30);
+      return;
     }
+    if(audioCtx.currentTime < 0.001){
+      // currentTime이 아직 0 → 다시 대기
+      setTimeout(waitAndStart, 20);
+      return;
+    }
+    // 이제 실제로 흐름 → 스케줄링
+    mNextTime = audioCtx.currentTime + 0.05;
+    mSchedulerLoop();
   };
 
-  if(audioCtx.state === 'running'){
-    run();
-  } else {
-    audioCtx.resume().then(run).catch(e=>{ console.warn('resume failed', e); run(); });
-  }
+  audioCtx.resume().then(waitAndStart).catch(waitAndStart);
 }
 
 // ── 고급 설정 토글
@@ -6219,77 +6241,8 @@ function init(){
   document.querySelectorAll("input[type=range]").forEach(updateRangeStyle);
   document.getElementById("patternInfoText").innerHTML=PATTERNS["paradiddle"].desc.replace(/\n/g,"<br>");
 
-  // iOS Safari: 페이지 첫 터치/클릭으로 audioCtx 전역 unlock
-  function unlockAudio(){
-    if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
-    if(audioCtx.state === 'running'){
-      document.removeEventListener('touchstart', unlockAudio, true);
-      document.removeEventListener('click',      unlockAudio, true);
-      return;
-    }
-    audioCtx.resume().then(()=>{
-      try{
-        const buf = audioCtx.createBuffer(1,1,audioCtx.sampleRate);
-        const src = audioCtx.createBufferSource();
-        src.buffer=buf; src.connect(audioCtx.destination); src.start(0);
-      }catch(e){}
-      if(audioCtx.state==='running'){
-        document.removeEventListener('touchstart', unlockAudio, true);
-        document.removeEventListener('click',      unlockAudio, true);
-      }
-    }).catch(()=>{});
-  }
-  document.addEventListener('touchstart', unlockAudio, true);
-  document.addEventListener('click',      unlockAudio, true);
 }
 init();
-
-// ─────────────────────────────────────────────────────────────
-//  iosTouchStart: iOS Safari START 버튼 전용 터치 핸들러
-//
-//  핵심 원리:
-//  iOS Safari는 AudioContext.resume() 이 touchstart 핸들러의
-//  동기 콜스택 안에서 호출될 때만 gesture로 인정함.
-//  Promise.then() 은 microtask로 실행되어 gesture context 유지됨.
-//  그러나 onclick(= click 이벤트)은 별도 gesture라서
-//  이미 resume()이 pending 중이어도 새 gesture로 재요청이 필요함.
-//
-//  해결: touchstart에서 unlock + toggle 모두 처리,
-//        preventDefault()로 후속 click 이벤트를 차단.
-// ─────────────────────────────────────────────────────────────
-function iosTouchStart(e, mode){
-  e.preventDefault(); // click 이벤트 발생 차단 (중복 실행 방지)
-
-  // AudioContext 생성 (이미 있으면 재사용)
-  if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
-
-  const doToggle = ()=>{
-    if(mode === 'metro')    toggleMetroMode();
-    if(mode === 'training') toggleMetronome();
-  };
-
-  if(audioCtx.state === 'running'){
-    // 이미 활성화됨 → 바로 toggle
-    doToggle();
-  } else {
-    // touchstart gesture context 안에서 resume() 호출
-    audioCtx.resume().then(()=>{
-      // 무음 버퍼로 오디오 세션 완전 활성화
-      try{
-        const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-        const src = audioCtx.createBufferSource();
-        src.buffer = buf;
-        src.connect(audioCtx.destination);
-        src.start(0);
-      }catch(err){}
-      // 활성화 직후 toggle 실행
-      doToggle();
-    }).catch(()=>{
-      // resume 실패해도 toggle 시도
-      doToggle();
-    });
-  }
-}
 </script>
 </body>
 </html>
