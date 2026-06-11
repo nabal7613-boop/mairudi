@@ -1787,7 +1787,10 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 <header>
   <div class="logo">
     <span class="logo-main">MAI RUDI</span>
-    <span class="logo-sub">AI Rudiment Trainer · v0.1</span>
+    <div style="display:flex;flex-direction:column;gap:1px;">
+      <span class="logo-sub">AI Rudiment Trainer · v0.1</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;">20260611_0433</span>
+    </div>
   </div>
   <nav class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('training',this)">🥁 트레이닝</button>
@@ -1851,7 +1854,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
         </svg>
       </button>
     </div>
-    <button class="btn-start stopped" id="startBtn" onclick="toggleMetronome()">▶ START</button>
+    <button class="btn-start stopped" id="startBtn" ontouchstart="if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}audioCtx.resume().catch(()=>{})" onclick="toggleMetronome()">▶ START</button>
     <div class="beat-indicator" id="beatIndicator"></div>
     <button class="btn-mic-main" id="micMainBtn" onclick="toggleMicMain()">🎤 MIC</button>
   </div>
@@ -2267,7 +2270,7 @@ input[type=range].vertical.triplet::-moz-range-thumb {
 
     <!-- 오른쪽: START + 비트닷 + 박자표 -->
     <div class="metro-start-col">
-      <button class="metro-start-btn stopped" id="mStartBtn" onclick="toggleMetroMode()">
+      <button class="metro-start-btn stopped" id="mStartBtn" ontouchstart="if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}audioCtx.resume().catch(()=>{})" onclick="toggleMetroMode()">
         <span class="start-icon" id="mStartIcon">▶</span>
         <span id="mStartLabel">START</span>
       </button>
@@ -6220,23 +6223,33 @@ function init(){
   document.querySelectorAll("input[type=range]").forEach(updateRangeStyle);
   document.getElementById("patternInfoText").innerHTML=PATTERNS["paradiddle"].desc.replace(/\n/g,"<br>");
 
-  // iOS Safari: 첫 터치/클릭 시 AudioContext unlock
+  // iOS Safari: 터치/클릭마다 AudioContext unlock 시도 (running 확인될 때까지 유지)
+  // iOS Safari는 user gesture 핸들러 내부에서 동기적으로 resume()을 호출해야 함
   function unlockAudio(){
     if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
-    if(audioCtx.state !== 'running'){
-      audioCtx.resume().catch(()=>{});
+    if(audioCtx.state === 'running'){
+      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('touchend',   unlockAudio);
+      document.removeEventListener('click',      unlockAudio);
+      return;
     }
-    // 짧은 무음 버퍼 재생 (iOS 강제 언락)
-    try{
-      const buf = audioCtx.createBuffer(1, 1, 22050);
-      const src = audioCtx.createBufferSource();
-      src.buffer = buf;
-      src.connect(audioCtx.destination);
-      src.start(0);
-    }catch(e){}
-    document.removeEventListener('touchstart', unlockAudio);
-    document.removeEventListener('touchend', unlockAudio);
-    document.removeEventListener('click', unlockAudio);
+    // 동기적으로 resume 호출 (iOS gesture context 유지)
+    audioCtx.resume().then(()=>{
+      try{
+        const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioCtx.destination);
+        src.start(0);
+        src.onended = ()=>{
+          if(audioCtx.state === 'running'){
+            document.removeEventListener('touchstart', unlockAudio);
+            document.removeEventListener('touchend',   unlockAudio);
+            document.removeEventListener('click',      unlockAudio);
+          }
+        };
+      }catch(e){}
+    }).catch(()=>{});
   }
   document.addEventListener('touchstart', unlockAudio, {passive:true});
   document.addEventListener('touchend',   unlockAudio, {passive:true});
